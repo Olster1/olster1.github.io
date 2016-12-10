@@ -1,0 +1,57 @@
+<script src="head.js"></script>
+<script src="nav.js"></script>
+
+<script src="landing_page.js"></script>
+<script src="about.js"></script>
+<script src="contact.js"></script>
+<script src="design.js"></script>
+
+<script>
+
+var elms = [createElementEnum("about"), 
+			createElementEnum("contact"),
+			createElementEnum("main"),
+      createElementEnum("design")];
+
+function createElementEnum(name) {
+	return {name: name, elm: document.getElementById(name)}
+}
+
+function toggleVisiblePages(name) {
+	for(var i = 0; i < elms.length; ++i) {
+		var display = "none";
+		if(elms[i].name == name) {
+			display = "block";
+		} 
+		elms[i].elm.style.display = display;
+	}
+}
+
+function handleNewHash() {
+  var location = window.location.hash.replace(/^#\/?|\/$/g, '').split('/');
+  switch (location[0])  {
+  case '':
+  	toggleVisiblePages("main");
+  	break;
+  case 'about': 
+  	toggleVisiblePages("about");
+  	break;
+  case 'contact':
+  	toggleVisiblePages("contact");
+  	break;
+  case 'design':
+    toggleVisiblePages("design");
+  break;
+  default:
+    //this is where you would put 404 not found error
+    break;
+  }
+}
+
+handleNewHash()
+window.addEventListener('hashchange', handleNewHash, false);
+</script>
+
+</body>
+</html>
+
