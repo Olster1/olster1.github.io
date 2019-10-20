@@ -11,10 +11,6 @@ document.write('\
     </div>\
     <div class="collapse navbar-collapse" id="myNavbar">\
       <ul class="nav navbar-nav">\
-        <li><a href="./index.html#design">Design</a></li>\
-        <li><a href="./index.html#music">Music</a></li>\
-        <li><a href="./index.html#design">Writing</a></li>\
-        <li><a href="./index.html#about">About</a></li>\
         <li><a href="./index.html#contact">Contact</a></li>\
       </ul>\
     </div>\

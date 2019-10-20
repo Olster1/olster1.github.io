@@ -8,7 +8,7 @@ document.write('\
 		</div>\
 		<div class="col-sm-4">\
 		  	<div class="photo-card">\
-  				<img class="img-responsive" src="avatar.png">\
+  				<img class="img-responsive" src="avatar.jpg">\
   			</div>\
 		</div>\
 	</div>\
