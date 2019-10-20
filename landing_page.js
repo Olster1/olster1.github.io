@@ -66,7 +66,7 @@ document.write('\
 			</div>\
 			<div class="info-card">\
 			<h3>Guitar</h3>\
-				<div>I used to play guitar alot. Here are some videos of me playing a while ago. <a href="https://www.youtube.com/watch?v=w7Mhv0D2dVc">Improvising of a minor loop.</a><a href="https://www.youtube.com/watch?v=v_zG4qrxg00">Sailing Guitar improvising.</a></div>\
+				<div>I used to play guitar alot. Here are some videos of me playing a while ago. <a href="https://www.youtube.com/watch?v=w7Mhv0D2dVc">Improvising over a minor loop.</a><a href="https://www.youtube.com/watch?v=v_zG4qrxg00">Sailing Guitar improvising.</a></div>\
 			</div>\
 			<div class="info-card">\
 				<h3>Music Recordings</h3>\
