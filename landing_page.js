@@ -61,8 +61,8 @@ document.write('\
 			<h2>Non programming stuff: </h2>\
 			<div class="info-card">\
 				<h3>Stop Motion Video</h3>\
-				<div>I made a stop motion art piece you can watch <a href="">here</a>.</div>\
-				<img src="1.png" ><img src="2.png" ><img src="3.png" ><img src="4.png" ><img src="5.png" ><img src="6.png" >\
+				<div>I made a stop motion art piece you can watch <a href="https://www.youtube.com/watch?v=CgYB6GiYlZA">here</a>.</div>\
+				<img style="width: 250px;" src="1.png" ><img style="width: 250px;" src="2.png" ><img style="width: 250px;" src="3.png" ><img style="width: 250px;" src="4.png" ><img style="width: 250px;" src="5.png" ><img style="width: 250px;" src="6.png" >\
 			</div>\
 			<div class="info-card">\
 			<h3>Guitar</h3>\
@@ -74,7 +74,7 @@ document.write('\
 			</div>\
 			<div class="info-card">\
 				<h3>Short Video Compositions</h3>\
-				<div>I like making videos from footage. Here are some I\'ve made: <a href="https://www.youtube.com/watch?v=TASHajCOFcs">Me kayaking</a>, <a href="https://www.youtube.com/watch?v=TASHajCOFcs">Exploring Sydney beaches</a><a href="https://www.youtube.com/watch?v=szAZM-nh7ls">, a video about fire<a><a href="https://www.youtube.com/watch?v=8yoiceewTk8&t=31s">, a video of where I grew up in North Queensland, Australia.</a></div>\
+				<div>I like making videos from footage. Here are some I\'ve made: <a href="https://www.youtube.com/watch?v=TASHajCOFcs">Me kayaking</a>, <a href="https://www.youtube.com/watch?v=LOD-P6j2YRM">Exploring Sydney beaches</a><a href="https://www.youtube.com/watch?v=szAZM-nh7ls">, a video about fire<a><a href="https://www.youtube.com/watch?v=8yoiceewTk8&t=31s">, a video of where I grew up in North Queensland, Australia.</a></div>\
 			</div>\
 		</div>\
 	</div>\
