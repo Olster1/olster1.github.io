@@ -62,6 +62,7 @@ document.write('\
 			<div class="info-card">\
 				<h3>Stop Motion Video</h3>\
 				<div>I made a stop motion art piece you can watch <a href="">here</a>.</div>\
+				<img src="1.png" ><img src="2.png" ><img src="3.png" ><img src="4.png" ><img src="5.png" ><img src="6.png" >\
 			</div>\
 			<div class="info-card">\
 			<h3>Guitar</h3>\
