@@ -5,7 +5,7 @@
 body {
   font: 20px monospace, sans-serif;
   line-height: 1.8;
-  background-image: url("asanoha.png");
+  background-image: url("alchemy.gif");
   background-repeat: repeat;
 }
 
@@ -18,4 +18,9 @@ body {
 .photo-card {
 	margin-top: 2em;
 
+}
+
+.point {
+	padding-top: 2%;
+	padding-bottom: 2%;
 }

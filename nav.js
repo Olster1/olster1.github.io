@@ -11,7 +11,6 @@ document.write('\
     </div>\
     <div class="collapse navbar-collapse" id="myNavbar">\
       <ul class="nav navbar-nav">\
-        <li><a href="./index.html#contact">Contact</a></li>\
       </ul>\
     </div>\
   </div>\
