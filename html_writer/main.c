@@ -63,7 +63,7 @@ static void writeHeader(FileState *state) {
 	char *text = "<!DOCTYPE html>\
 	<html lang=\"en\">\
 		<head>\
-		  <title>BIOLOGICAL COMPOST ADELAIDE HILLS</title>\
+		  <title>Oliver Marsh</title>\
 		  <meta charset=\"utf-8\">\
 		  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\
 		  <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\">\
@@ -86,10 +86,11 @@ static void writeNavBar(FileState *state) {
 	        <span class=\"icon-bar\"></span>\
 	        <span class=\"icon-bar\"></span>\
 	      </button>\
-	      <a class=\"navbar-brand\" href=\"./index.html#\">Biological Composting</a>\
+	      <a class=\"navbar-brand\" href=\"./index.html#\">Oliver Marsh</a>\
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
-	      <ul class=\"nav navbar-nav\">\
+	      <ul class=\"nav navbar-nav navbar-right\">\
+	      	<li><a href=\"./about.html\">About</a></li>\
 	      </ul>\
 	    </div>\
 	  </div>\
@@ -170,6 +171,15 @@ static u32 writeH3_(FileState *state, char *title, u32 sizeInBytes) {
 	return sizeInBytes;
 }
 
+#define writeH4(state, text) writeH4_(state, text, easyString_getSizeInBytes_utf8(text))
+#define writeH4_withSize(state, text) writeH4_(state, text, getBytesUntilNewLine((u8 *)text))
+static u32 writeH4_(FileState *state, char *title, u32 sizeInBytes) {
+	writeText(state, "<h4>");
+	writeText_(state, title, sizeInBytes);
+	writeText(state, "</h4>");
+	return sizeInBytes;
+}
+
 static void writeSeperator(FileState *state) {
 	writeText(state, "<hr>");
 }
@@ -240,6 +250,13 @@ int main(int argc, char **args) {
 					at += 3;
 					writeSeperator(&state);
 					eatWhiteSpace(&at);
+				} else if(stringsMatchNullN("#BR", at, 3)) { //NOTE(ollie): paragraph
+					at += 3;
+					writeLineBreak(&state, 1);
+					eatWhiteSpace(&at);
+				} else if(stringsMatchNullN("####", at, 4)) { //NOTE(ollie): H3
+					at += 4;
+					at += writeH4_withSize(&state, at);
 				} else if(stringsMatchNullN("###", at, 3)) { //NOTE(ollie): H3
 					at += 3;
 					at += writeH3_withSize(&state, at);
@@ -251,7 +268,7 @@ int main(int argc, char **args) {
 					at += writeH1_withSize(&state, at);
 					eatWhiteSpace(&at);
 				} else if(at[0]== '\n' || at[0]== '\r') { //NOTE(ollie): H1
-					writeLineBreak(&state, 1);
+					// writeLineBreak(&state, 1);
 					if(at[0] == '\r' && at[1] == '\n') {
 						at += 2;
 					} else {

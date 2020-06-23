@@ -1,6 +1,11 @@
 #CARD
-#TITLE Working With Soil
-#CARD
-##Checking the microbes in the soil.
+#TITLE Hi there Friends! 👋
 #HR 
-#What you want to do is acces the soil in a way that doesn't hurt it. To do this you must do this things
+#BR
+##I'm Ollie. A parent, app developer & reader of interesting things. 
+###On this site we explore the stratergies & tools to help us lead a happier, healthier, more loving life. 
+#HR
+#BR
+###Blog posts (top most recent).
+####<b>June</b>
+#<a href="./$100Startup.html">$100 Startup Book: Thoughts & Notes</a>

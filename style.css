@@ -3,9 +3,9 @@
 	padding: 0;
 }
 body {
-  font: 20px monospace, sans-serif;
+  font: 20px 'Montserrat', sans-serif;
   line-height: 1.8;
-  background-image: url("alchemy.gif");
+  /*background-image: url("alchemy.gif");*/
   background-repeat: repeat;
 }
 
