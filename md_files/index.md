@@ -3,10 +3,14 @@
 #BR
 #HR 
 #BR
-##I'm Ollie. A parent, self-learner, programmer & reader of interesting things. 
-###On this site we explore the stratergies & tools to help us lead a happier, healthier, more fufilling life. 
+##I'm Ollie. A parent and self-learner. And I'm on a mission to combine these two things. 
+###On this site you'll find stories, research & tools for you to have a go for yourself.
+###I hope you join me on this journey!
 #BR
 #HR
+#BR
+####<b>Health</b>
+#<a href="./micro-exercise.html">How to Stop Teeth Cavities</a>
 #BR
 ####<b>Exercise</b>
 #<a href="./micro-exercise.html">Micro Exercise</a>
