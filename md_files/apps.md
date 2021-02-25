@@ -3,22 +3,22 @@
 #BR
 #HR 
 #BR
-##Here you'll find my apps.  
+###Here you'll find my apps.  
 #BR
 #HR
 #BR
-####<b>MyYoga</b>
+##<b>MyYoga</b>
 #HR
 #BR
-####<b>Remember Me</b>
+##<b>Remember Me</b>
 #HR
 #BR
-####<b>Minute Habits</b>
+##<b>Minute Habits</b>
 #HR
 #BR
-####<b>Fitirs</b>
+##<b>Fitris</b>
 #HR
 #BR
-####<b>Meditation App</b>
+##<b>Meditation Proder</b>
 #HR
 #BR
