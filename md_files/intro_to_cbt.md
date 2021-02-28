@@ -3,6 +3,8 @@
 #BR
 ##I think therefore I feel
 #BR
+#<img src='./photos/cbt/cbt1.jpg' style='width: 12cm;'>
+#BR
 #HR 
 #BR
 #You may have heard the term Cognitive Behavioral Therapy before and wondered what it's all about. That was me. I saw it recommended as a scientifically proven way to treat depression & anxiety.  But I wondered how learning a theoretical framework could suddenly reduce my bouts of depression?  I want to give you a few key takeaways of CBT and how you can <b>practice</b> it in your everyday life.
@@ -11,10 +13,14 @@
 #BR
 ##1. CBT is a form of self-therapy. 
 #BR
-# Self-therapy is the ability to perform psychological therapy on yourself, without having an external person. When we have an episode of depression or anxiety, we're not going to be near a therapist straight away. BY becoming our own therapist, we are going to be emotionally more resilient, and be able to get on top of thoughts while they are occurring. This takes us to the next key point.
+#<img src='./photos/cbt/cbt5.jpg' style='width: 12cm;'>
+#BR
+# Self-therapy is the ability to perform psychological therapy on yourself, without having an external person. When we have an episode of depression or anxiety, we're not going to be near a therapist straight away. By becoming our own therapist, we are going to be emotionally more resilient, and be able to get on top of thoughts while they are occurring. This takes us to the next key point.
 #HR
 #BR
 ##2. Our Emotions & Behaviours are caused by how we interpret the external world. 
+#BR
+#<img src='./photos/cbt/cbt4.jpg' style='width: 12cm;'>
 #BR
 #The CBT framework is based on the premise that our interpretation of the external world is the cause of our emotions towards it and ourselves, which then govern our behaviors. 
 #The events occurring in the world filter through our set of <b>beliefs, thoughts, and biases</b>, and from these produce an <b>emotion</b>. These can be unhealthy emotions, which lean us towards self-destructive behaviors, and healthy emotions, which lean us towards constructive behaviors.  
@@ -22,6 +28,8 @@
 #HR
 #BR
 ##3. Observe your thoughts
+#BR
+#<img src='./photos/cbt/cbt2.jpg' style='width: 12cm;'>
 #BR
 #The first step of using CBT in everyday life is to observe your thoughts. Not to judge them as bad or good. Just to see them as they occur. Label them as a thought when you see them happening. The more you become the observer of your thoughts, the easier it is to question and replace eventually them.
 #HR
@@ -35,33 +43,54 @@
 #BR
 ##Example
 #BR
+#<img src='./photos/cbt/lightbulb.jpg' style='width: 12cm;'>
+#BR
 #<i>You look out for your elderly Aunt by visiting her every fortnight to help around the house. Doing odd jobs she can't, like cleaning the windows and changing the light bulbs. One fortnight, instead of going to visit her, you take an offer up by your friends to go skiing and forget to let her know.  Your Aunt got impatient waiting for you and decided to try and change a lightbulb herself. She lost her balance on the ladder and fell, breaking her hip.</i>
 #BR
 ###Negative response
+#BR
+#<img src='./photos/cbt/swatch1.jpg' style='width: 12cm;'>
+#BR
 #You interpret the event as entirely your fault, resulting in a guilty response which is as follows:
-#You conclude you've done something terrible and feel deeply guilty. You assume more personal responsibility than may actually be legitimate, discounting or not considering other factors. You may believe that some form of punishment is deserved and/or imminent. 
+#BR
+#<i>You conclude you've done something terrible and feel deeply guilty. You assume more personal responsibility than may actually be legitimate, discounting or not considering other factors. You may believe that some form of punishment is deserved and/or imminent. 
+#BR
 #You may look for more evidence to support you have done a bad thing, discounting or ignoring competing evidence. 
-#You try to escape your guilty feelings by begging for forgiveness, promising to yourself or others that you'll never do a bad thing again. You may punish yourself for your wrong-doing. 
-#BR 
+#BR
+#You try to escape your guilty feelings by begging for forgiveness, promising to yourself or others that you'll never do a bad thing again. You may punish yourself for your wrong-doing</i>. 
+#BR
 ###Positive response
-#You interpret the event as unfortunate and wished you had contacted your Aunt, but ultimately understand it is not entirely your fault.
+#BR
+#<img src='./photos/cbt/swatch.jpg' style='width: 12cm;'>
+#BR
+#<i>You interpret the event as unfortunate and wished you had contacted your Aunt, but ultimately understand it is not entirely your fault.
+#BR
 #You look at actions in context and with understanding before making a judgment about what has happened. You consider mitigating factors of the situation and do not believe that punishment is deserved and/or imminent.
+#BR
 #You don’t look for further evidence that you've done something bad, neither do you look for or assume that others hold you responsible for what has happened.
+#BR
 #You face up to the healthy pain that comes with knowing that you could have done better. You may ask for forgiveness but understand you are capable of forgiving yourself. You understand the reasons for your wrongdoing and act on that understanding. You avoid defensiveness and excuse-making.
-#You are able to challenge negative thoughts that arise with competing viewpoints - She could have rung someone else. She could have waited till the end of the day to get in contact.  
+#BR
+#You are able to challenge negative thoughts that arise with competing viewpoints - She could have rung someone else. She could have waited till the end of the day to get in contact.</i>  
 #HR
 #BR
 ##5. We can challenge our interpretations of events.
-#BR     
+#BR
+#<img src='./photos/cbt/cbt3.jpg' style='width: 12cm;'>
+#BR   
 #Our interpretations of events are not the final word. Our brain creates our interpretation based on past experiences, following the path of least resistance. Although this might use less energy by our brain at that moment, it can be detrimental to our well-being. 
 #We have the ability to question our interpretation, asking whether what has been thought is actually the truth. We become scientists of our thoughts, instead of seeing them as facts that are unquestionable, as Cognitive Behavioural Therapists we treat them as hypotheses that need to be tested. 
 #BR
 #There are multiple ways of challenging them. 
 #BR
+#<img src='./photos/cbt/magnifine_glass.jpg' style='width: 12cm;'>
+#BR
 #<b>1. We find an alternative explanation of what has happened.</b> Say you suddenly find a friend is avoiding you. They won't answer your messages and you saw them turn the other walking down the street. You may think 
 #<i>"That person is being very rude. Suddenly we're friends, next I can't even talk to them. How dare they! I'm going to give them a piece of my mind!".</i>
 #If we catch ourselves having this thought, we don't have to take it at face value. 
 #We can question whether this is the only explanation. A relative might have died and they can't cope to talk to anyone at the moment or they might be going through a job loss or breakup. By coming up with alternative interpretations, we are able to step back from our immediate one, lessening the intensity of it. Even if any of our alternatives aren't true, we've allowed the possibility of alternative interpretations. 
+#BR
+#<img src='./photos/cbt/survey_request.jpg' style='width: 12cm;'>
 #BR
 #<b>2. We can gain perspective on the situation by surveying.</b> Whether that be through talking to other people or looking at survey results online, we can gain perspective on the event we experienced and the interpretation we drew. 
 #Say you have disturbing thoughts of killing your family. From the <b>event</b> that's happened in our own head (the disturbing images or thoughts), you could <b>interpret</b> this as evidence that you're not safe or you can't be trusted. Resulting in <b>unhealthy emotions and behaviors </b> like trying to never be left alone with family members, avoiding items that could inflict harm to others (knives, scissors), and trying to rid your mind of any of these thoughts happening again. 
@@ -75,6 +104,8 @@
 #BR
 ##6. Spotting Rigid Based Thoughts.
 #BR
+#<img src='./photos/cbt/rigid_thoughts.jpg' style='width: 12cm;'>
+#BR
 #After having a go with CBT you might notice types of thoughts that cause the most negative reaction to events. These are <b>Rigid Based Thoughts</b>. Thoughts that leave little wiggle room for alternative realities. Rigid based thoughts come in the form of: 
 #<i>must be like this, I need to, I have to, there is no other way</i>  
 #You might create unrealistic demands for yourself and others. 
@@ -87,16 +118,20 @@
 #When you catch yourself creating <b>moutains out of molehills</b>, assess the situation in a different way. 
 #HR
 #BR
-##7. Fundamental Beliefs for Emotional Resilience. 
+##7. Beliefs for Emotional Resilience. 
 #BR
-#We've seen our thoughts, beliefs, and biases determine how well we respond to an event. Are there thoughts and beliefs that set you up for emotional health? Yes! Just as Rigid based Thoughts curtail our emotional health, <b>Flexible</b> thoughts allow us to interpret an event in a multitude of ways, allowing us to make the most of any situation. 
+#<div class="row" style="text-align: center;"> <div class="column"><img src='./photos/cbt/thoughts_wiggle.jpg' style='width: 6cm;'></div>
+#<div class="column">We've seen our thoughts, beliefs, and biases determine how well we respond to an event. Are there thoughts and beliefs that set you up for emotional health? Yes! Just as Rigid based Thoughts curtail our emotional health, <b>Flexible</b> thoughts allow us to interpret an event in a multitude of ways, allowing us to make the most of any situation. 
 #BR
 #<b>Flexibility is the hallmark of psychological health - the consequence of not holding rigid expectations, standards or ideals.</b>
 #BR
-#Being flexible doesn't mean anything goes. We can still have standards, boundaries, and beliefs. Instead of <i>I must be treated with respect</i>, change it to a preference <i>I'd like to be treated with respect, but I understand not everyone will</i>. Whenever you notice yourself having rigid-based thoughts, see if you can purposively turn it into a flexible thought.
+#Being flexible doesn't mean anything goes. We can still have standards, boundaries, and beliefs. Instead of <i>I must be treated with respect</i>, change it to a preference <i>I'd like to be treated with respect, but I understand not everyone will</i>. Whenever you notice yourself having rigid-based thoughts, see if you can purposively turn it into a flexible thought.</div></div>
 #HR
 #BR
 ##8. Remove Self Rating
+#BR
+#<img src='./photos/cbt/number_sign.jpg' style='width: 8cm;'>
+#BR
 #Low self-esteem - having a dim view of yourself - is a belief that can lead you to interpret situations negatively, resulting in jealousy, envy, anger, anxiety, and depression. 
 #Inherit in low self-esteem is rating yourself by some measure & deciding your worth based on this. Inherent in this idea is labeling (deciding what is bad & good) & over-generalization. You believe you're only as worthwhile as your achievements, love life, social accolades, or financial prowess.
 #BR
@@ -104,11 +139,14 @@
 #HR
 #BR
 ##9. Practicing Self Acceptance
+#BR
+#<img src='./photos/cbt/esteem1.jpg' style='width: 8cm;'>
+#BR
 #Practicing self-acceptance is the process of removing self-rating. Not comparing or rating yourself based on some metric. When things go wrong, your self-esteem is built into your core beliefs external to the current circumstances, allowing you to carry on in the best possible emotional condition.
 #BR
 #The following is a list of beliefs that can help you build more self-esteem by practicing self-acceptance.  
 #BR
-#1. As a human being, you're unique, multi-faceted - you can rate your worth by one external measure. 
+#1. As a human being, you're unique, multi-faceted - you can't rate your worth by one external measure. 
 #BR
 #2. You're ever-changing & developing 
 #BR
@@ -122,13 +160,19 @@
 #HR
 #BR
 ##10. Growth Mindset vs Fixed Mindset
+#BR
+#<img src='./photos/cbt/growth.jpg' style='width: 12cm;'>
+#BR
 #You may have heard of <b>Growth Mindset</b>, the <b>belief</b> that we are not limited by talent or intelligence determined at birth, but are able to grow and get better through deliberate practice. This is in contrast to <b>Fixed Mindset</b> - where we decide we are just not good at something because we couldn't do it straight away, or found it hard. 
+#BR
+#<img src='./photos/cbt/fixed.jpg' style='width: 12cm;'>
 #BR
 #<b>Growth Mindset is a Flexible Belief</b> that allows us to approach challenges with the possibility that we are capable of overcoming them, we just need more practice, information, or time - we hold the possibility that we could still do it. <b>Fixed Mindset is a Rigid Belief</b> - that we are either good at this or not good, there isn't the possibility that we could improve over time.   
 #HR
 #BR
-##11. Giving up Control. 
-#Underlying things like anxiety, panic disorders & OCD is control. We can cope with uncertain situations, so we try hard to control them. Giving up control is the best thing you can do. We live in an uncertain universe, birth, death & taxes are the only things we can be certain of. Developing beliefs that allow for uncertainty is one way to give up the control - get perspective (lots of people deal with uncertainty and bad things every day). 
+##11. Giving up Control.
+#BR 
+#Underlying things like anxiety, panic disorders & OCD is control. We can cope with uncertain situations, so we try hard to control them. Giving up control is the best thing you can do. We live in an uncertain universe - birth, death & taxes are the only things we can be certain of. Developing beliefs that allow for uncertainty is one way to give up the control - get perspective (lots of people deal with uncertainty and bad things every day).
 #BR
 #Engaging in things we don't want tends to exacerbate them - if we worry we think we can get all the worrying out of the way, suppressing thoughts will stop the thoughts - remains down trying to control things out of our control. It will bring on the thing we are so actively trying to avoid. 
 #BR
@@ -136,13 +180,13 @@
 #HR
 #BR
 ##Conclusion
-#You may start to worry about the validity of any of your thoughts. It should be stated that there are no wrong or right thoughts - there are thoughts that can help us move more constructively and flexibly through life and thoughts that can cause emotional distress and destructive behaviors. The same thoughts can have different impacts on different people.    
+#BR
+#It should be stated that there are no wrong or right thoughts - there are thoughts that can help us move more constructively and flexibly through life and thoughts that can cause emotional distress and destructive behaviors. The same thoughts can have different impacts on different people.    
 #The crucial step in using CBT in your everyday life is to make the thought-feeling link: seeing clearly for yourself the connection between what goes through your mind and your resulting emotions. When you see this connection, it can help you to make much more sense of why to challenge and change your thoughts. 
-#HR
 #BR
-###References
+##References
 #BR
-#[1] OCD Harm percentage https://www.madeofmillions.com/ocd/harm-ocd#:~:text=Harm%20OCD%20is%20a%20common,harming%20themselves%20and%20loved%20ones.
+#[1] OCD Harm percentage https://www.madeofmillions.com/ocd/harm-ocd
 #[2] Cognitive Behavioural Therapy for Dummies by Rob Willson & Rhena Branch
 #HR
 #BR
@@ -178,5 +222,4 @@
 #BR
 #11. You always have to maintain control and aim for perfection
 #BR
-#12. We do not control our emotions, happiness is something that simply happens  
-
+#12. We do not control our emotions, happiness is something that simply happens

@@ -13,7 +13,8 @@
 #<a href="./intro_to_cbt.html">Introduction to Cognitive Behaviour Therapy</a>
 #BR
 ####<b>Health</b>
-#<a href="./micro-exercise.html">How to Stop Teeth Cavities</a>
+#<a href="./how-to-stop-teeth-cavities.html">How to Stop Teeth Cavities</a>
+#<a href="./stay-young-for-longer.html">Stay Young for Longer</a>
 #BR
 ####<b>Exercise</b>
 #<a href="./micro-exercise.html">Micro Exercise</a>
