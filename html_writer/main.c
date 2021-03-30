@@ -90,8 +90,8 @@ static void writeNavBar(FileState *state) {
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
 	      <ul class=\"nav navbar-nav navbar-right\">\
+	        <li><a href=\"./about.html\">About</a></li>\
 	      	<li><a href=\"./apps.html\">Apps</a></li>\
-	      	<li><a href=\"./projects.html\">Projects</a></li>\
 	      </ul>\
 	    </div>\
 	  </div>\
