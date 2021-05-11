@@ -9,6 +9,9 @@
 #BR
 #HR
 #BR
+####<b>Parenting</b>
+#<a href="./extraordinary_parenting_book_summary.html">Extraordinary Parenting Book Summary by Eloise Rickman</a>
+#BR
 ####<b>Mental Health</b>
 #<a href="./intro_to_cbt.html">Introduction to Cognitive Behaviour Therapy</a>
 #BR
