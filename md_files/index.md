@@ -3,14 +3,15 @@
 #BR
 #HR 
 #BR
-##I'm Ollie. A parent and self-learner. And I'm on a mission to combine these two things. 
-###On this site you'll find stories, research & tools for you to have a go for yourself.
-###I hope you join me on this journey!
+##I'm Ollie. A game programmer and teacher.  
+###I love learning about how games work and teaching the conepts in simple and intuitive ways.
 #BR
 #HR
 #BR
-####<b>Parenting</b>
-#<a href="./extraordinary_parenting_book_summary.html">Extraordinary Parenting Book Summary by Eloise Rickman</a>
+####<b>Game Engine Development</b>
+#<a href="./extraordinary_parenting_book_summary.html">Using DirectX in your games.</a>
+#BR
+#HR
 #BR
 ####<b>Mental Health</b>
 #<a href="./intro_to_cbt.html">Introduction to Cognitive Behaviour Therapy</a>
@@ -25,6 +26,5 @@
 #<a href="./i-dont-have-time-to-exercise.html">I don't have time to exercise</a>
 #BR
 ####<b>Book Summaries</b>
-#<a href="./$100Startup.html">$100 Startup Book: Thoughts & Notes</a>
 #<a href="./lifespan-david-sinclair-summary.html">LifeSpan Book: Thoughts & Notes</a>
 #<a href="./HowToChangeYourMind.html">How to Change Your Mind: Thoughts & Notes</a>

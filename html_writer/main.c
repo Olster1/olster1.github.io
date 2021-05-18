@@ -86,12 +86,13 @@ static void writeNavBar(FileState *state) {
 	        <span class=\"icon-bar\"></span>\
 	        <span class=\"icon-bar\"></span>\
 	      </button>\
-	      <a class=\"navbar-brand\" href=\"./index.html#\">Oliver Marsh</a>\
+	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 5cm;\" src=\"./photos/logo2.png\"></a>\
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
 	      <ul class=\"nav navbar-nav navbar-right\">\
-	        <li><a href=\"./about.html\">About</a></li>\
-	      	<li><a href=\"./apps.html\">Apps</a></li>\
+	        <li><a href=\"./apps.html\">Direct X</a></li>\
+	      	<li><a href=\"./apps.html\">Games</a></li>\
+	      	<li><a href=\"./about.html\">About</a></li>\
 	      </ul>\
 	    </div>\
 	  </div>\

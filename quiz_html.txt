@@ -1,0 +1,9 @@
+<p>What slash do file names on Windows use? What slash do file names on Mac use? <a href="#q1" data-toggle="collapse">Click to see</a></p>
+	<div id="q1" class="collapse quiz-answer"><p>
+		<p>
+			Windows uses back slashes \
+		</p>
+		<p>
+			Mac uses forward slashes /
+		</p>
+	</p></div>

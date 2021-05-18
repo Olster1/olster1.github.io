@@ -82,7 +82,7 @@
 #HR
 #BR
 ##Using stories about your time as a child to create connection
-
+#Another way to deepen your relationship with your child is to tell stories of your time as a child. This althoughs them relate to you and see you as a child.  
 
 
 
