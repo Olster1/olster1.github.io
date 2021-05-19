@@ -39,8 +39,8 @@ body {
 
 .code-block {
   text-align: center;
-  background-color: black;
-  color: yellow;
+  background-color: #161616;
+  color: #A08563;
   font-family: 'Roboto Mono', monospace;
   width: 100%;
 }
@@ -50,8 +50,8 @@ body {
   padding: 5%;
   padding-top: 1%;
   padding-bottom: 1%;
-  background-color: black;
-  color: yellow;
+  background-color: #161616;
+  color: #A08563;
   font-family: 'Roboto Mono', monospace;
   width: 100%;
 }

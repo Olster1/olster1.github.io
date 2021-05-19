@@ -7,10 +7,24 @@
 
 typedef struct {
 	InfiniteAlloc contentsToWrite;
+	InfiniteAlloc tempHtmlEncoded;
 } FileState;
+
+typedef enum {
+	COLOR_NULL,
+	COLOR_VARIABLE,
+	COLOR_FUNCTION,
+	COLOR_BRACKET,
+	COLOR_KEYWORD,
+	COLOR_COMMENT,
+	COLOR_PREPROCESSOR
+} SyntaxColor;
+
 
 static initFileState(FileState *state) {
 	state->contentsToWrite = initInfinteAlloc(u8);
+	state->tempHtmlEncoded = initInfinteAlloc(u8);
+	
 }
 
 static void outputFile(FileState *state, char *filename) {
@@ -59,6 +73,34 @@ static void writeLineBreak(FileState *state, int count) {
 	
 }
 
+
+static void writeColor(FileState *state, SyntaxColor color) {
+	char *text = " "; //don't add anything
+
+	if(color == COLOR_VARIABLE) {
+		text = "<span style=\"color: #6B8E23;\">";
+	} else if(color == COLOR_BRACKET) {
+		text = "<span style=\"color: #A08563;\">";
+	} else if(color == COLOR_FUNCTION) {
+		text = "<span style=\"color: #A08563;\">";
+	} else if(color == COLOR_KEYWORD) {
+		text = "<span style=\"color: #CD950C;\">";
+	} else if(color == COLOR_COMMENT) {
+		text = "<span style=\"color: #7D7D7D;\">";
+	} else if(color == COLOR_PREPROCESSOR) {
+		text = "<span style=\"color: #DAB98F;\">";
+	}
+
+	u32 sizeInBytes = easyString_getSizeInBytes_utf8(text);
+	addElementInifinteAllocWithCount_(&state->contentsToWrite, text, sizeInBytes);
+}
+
+static void endColor(FileState *state) {
+	char *text = "</span>";
+	u32 sizeInBytes = easyString_getSizeInBytes_utf8(text);
+	addElementInifinteAllocWithCount_(&state->contentsToWrite, text, sizeInBytes);
+}
+
 static void writeHeader(FileState *state) {
 	char *text = "<!DOCTYPE html>\
 	<html lang=\"en\">\
@@ -86,12 +128,12 @@ static void writeNavBar(FileState *state) {
 	        <span class=\"icon-bar\"></span>\
 	        <span class=\"icon-bar\"></span>\
 	      </button>\
-	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 5cm;\" src=\"./photos/logo2.png\"></a>\
+	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 5cm;\" src=\"./photos/logo2.svg\"></a>\
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
 	      <ul class=\"nav navbar-nav navbar-right\">\
-	        <li><a href=\"./apps.html\">Direct X</a></li>\
-	      	<li><a href=\"./apps.html\">Games</a></li>\
+	        <li><a href=\"./index.html\">Direct X</a></li>\
+	      	<li><a href=\"./index.html\">Games</a></li>\
 	      	<li><a href=\"./about.html\">About</a></li>\
 	      </ul>\
 	    </div>\
@@ -145,6 +187,29 @@ static u32 writeParagraph_(FileState *state, char *text, u32 sizeInBytes) {
 	return sizeInBytes;
 }
 
+#define writeTextUntileNewLine_withSize(state, text) writeText_returnSize_encoded(state, text, getBytesUntilNewLine((u8 *)text))
+static u32 writeText_returnSize_encoded(FileState *state, char *text, u32 sizeInBytes) {
+
+	for(int i = 0; i < sizeInBytes; i++) {
+		if(text[i] == '>') {
+			char *str = "&gt;";
+			addElementInifinteAllocWithCount_(&state->tempHtmlEncoded, str, easyString_getSizeInBytes_utf8(str));	
+		} else if(text[i] == '<') {
+			char *str = "&lt;";
+			addElementInifinteAllocWithCount_(&state->tempHtmlEncoded, str, easyString_getSizeInBytes_utf8(str));	
+		} else {
+			addElementInifinteAllocWithCount_(&state->tempHtmlEncoded, &text[i], 1);	
+		}
+		
+	}
+
+	addElementInifinteAllocWithCount_(&state->contentsToWrite, (u8 *)state->tempHtmlEncoded.memory, state->tempHtmlEncoded.count);
+
+	state->tempHtmlEncoded.count = 0;
+
+	return sizeInBytes;
+}
+
 
 #define writeH1(state, text) writeH1_(state, text, easyString_getSizeInBytes_utf8(text))
 #define writeH1_withSize(state, text) writeH1_(state, text, getBytesUntilNewLine((u8 *)text))
@@ -184,6 +249,18 @@ static u32 writeH4_(FileState *state, char *title, u32 sizeInBytes) {
 
 static void writeSeperator(FileState *state) {
 	writeText(state, "<hr>");
+}
+
+static void writeCodeBlock(FileState *state) {
+	writeText(state, "<div class=\"code-block-left \">");
+}
+
+static void writeWhiteSpaceTab(FileState *state) {
+	writeText(state, "&emsp;&emsp;&emsp;&emsp;");
+}
+
+static void writeEndCodeBlock(FileState *state) {
+	writeText(state, "</div>");
 }
 
 static void startInfoCard(FileState *state) {
@@ -231,6 +308,11 @@ int main(int argc, char **args) {
 			bool inCard = false;
 
 			printf("%s\n", filesToConvert.names[fileIndex]);
+
+			bool inCodeBlock = false;
+			bool wasNewLine = false;
+
+			int depthInFunction = 0;
 			
 			u8 *result = openFileNullTerminate(filesToConvert.names[fileIndex]);
 			u8 *at = result;
@@ -238,6 +320,114 @@ int main(int argc, char **args) {
 				// printf("%s\n", at);
 				if(false) {
 					//NOTE(ollie): Just to make it look nicer with all else ifs
+
+				} else if(inCodeBlock) {
+					if(stringsMatchNullN("#ENDCODE", at, 8)) {
+						inCodeBlock = false;
+						at += 8;
+						writeEndCodeBlock(&state);
+						eatWhiteSpace(&at);
+						writeLineBreak(&state, 1);
+						wasNewLine = false;
+						depthInFunction = 0;
+					} else {
+						
+
+						if(wasNewLine) {
+							eatWhiteSpace(&at);
+							if(at[0] == '}') {
+								depthInFunction--;
+								assert(depthInFunction >= 0);
+							}
+
+							for(int i = 0; i < depthInFunction; ++i) {
+								writeWhiteSpaceTab(&state);
+							}
+							
+							
+							wasNewLine = false;
+						} else if(*at == '\n' || *at == '\r') {
+							writeLineBreak(&state, 1);
+							eatWhiteSpace(&at);
+							wasNewLine = true;
+						} else {
+							u8 *tempAt = at;
+							u32 wordLength = 0;
+							u8 *lastWord = tempAt;
+
+							//comment
+							if(tempAt[0] == '/' && tempAt[1] == '/') {
+								writeColor(&state, COLOR_COMMENT);
+								tempAt += writeTextUntileNewLine_withSize(&state, at);
+								endColor(&state);
+							} else {
+
+								while(*tempAt != '\n' && *tempAt != '\r' && *tempAt != '\0') {
+									if(tempAt[0] == '{') {
+										depthInFunction++;
+									} 
+
+									wordLength++;
+
+									if(tempAt[0] == '(' || tempAt[0] == ')' || tempAt[1] == '(' || tempAt[1] == ')' || *tempAt == ' ' || tempAt[1] == '\n' || tempAt[1] == '\r') {
+										SyntaxColor color = COLOR_NULL;
+										if(*tempAt == '(') {
+											color = COLOR_BRACKET;
+											writeColor(&state, color);
+										} else if(tempAt[1] == '(') {
+											color = COLOR_KEYWORD;
+											writeColor(&state, color);
+										} else if(*tempAt == ')') {
+											color = COLOR_BRACKET;
+											writeColor(&state, color);
+										} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
+											color = COLOR_VARIABLE;
+											writeColor(&state, color);
+										} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
+											color = COLOR_VARIABLE;
+											writeColor(&state, color);
+										} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
+											color = COLOR_VARIABLE;
+											writeColor(&state, color);
+										} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
+											color = COLOR_KEYWORD;
+											writeColor(&state, color);
+										} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
+											color = COLOR_VARIABLE;
+											writeColor(&state, color);
+										} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
+											color = COLOR_PREPROCESSOR;
+											writeColor(&state, color);
+										} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
+											color = COLOR_VARIABLE;
+											writeColor(&state, color);
+										}
+
+
+										writeText_returnSize_encoded(&state, lastWord, wordLength);
+										wordLength = 0;	
+										lastWord = tempAt + 1;
+
+										if(color != COLOR_NULL) {
+											endColor(&state);
+										}
+									} 
+
+									tempAt++;
+								}
+							}
+
+							at = tempAt;
+
+							wasNewLine = false;
+						}
+						
+					}
+				} else if(stringsMatchNullN("#CODE", at, 5)) {
+					inCodeBlock = true;
+					at += 5;
+					writeCodeBlock(&state);
+					eatWhiteSpace(&at);
 
 				} else if(stringsMatchNullN("#CARD", at, 5)) { //NOTE(ollie): paragraph
 					at += 5;
