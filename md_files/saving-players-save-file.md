@@ -2,7 +2,7 @@
 #TITLE Saving player’s save file to a safe location
 #BR
 #HR 
-#If you're familiar with games on Windows, you may have come across the <b>AppData/Local</b> folder. Each user on the computer has their own AppData folder and is the default place to save things like a player's save state.
+#If you're familiar with games on Windows, you may have come across the <b>UserName/SavedGames</b> folder. Each user on the computer has their own AppData folder and is the default place to save things like a player's save state.
 #Why can’t you just save it to the folder your game is installed in?
 #Different users on the computer might not want another user seeing their save state.
 #And, importantly from a programming standpoint, depending on where the user installs your game, you might not have permission to write to your game folder. Making the game either crash or not save the player’s progress, either one not good.
@@ -17,11 +17,11 @@ char *getSaveFileLocation() {
   return result;
 }
 #ENDCODE
-#To get the filepath we use the Windows specific function SHGetKnownFolderPath, passing in the folder Id we want-FOLDERID_LocalAppData. It looks like this:
+#To get the filepath we use the Windows specific function SHGetKnownFolderPath, passing in the folder Id we want-FOLDERID_SavedGames. It looks like this:
 #CODE
 PWSTR  win32_wideString_utf16 = 0;
 if(SHGetKnownFolderPath(
-   FOLDERID_LocalAppData,
+   FOLDERID_SavedGames,
    KF_FLAG_CREATE,
    0,
    (PWSTR *)&win32_wideString_utf16
