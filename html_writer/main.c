@@ -483,6 +483,9 @@ int main(int argc, char **args) {
 											} else if(stringsMatchNullN("#if", lastWord, 3) && wordLength == 4) {
 												color = COLOR_PREPROCESSOR;
 												writeColor(&state, color);
+											} else if(stringsMatchNullN("struct", lastWord, 6) && wordLength == 7) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
 											} else if(stringsMatchNullN("#endif", lastWord, 6) && wordLength == 7) {
 												color = COLOR_PREPROCESSOR;
 												writeColor(&state, color);
