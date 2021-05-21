@@ -13,7 +13,7 @@ In this article, I’m going to walk through creating a DirectX 11 context to us
 Let's get started! The first thing for any Windows program is the windows entry point which we’re going to stick into a main.cpp file:
 
 #CODE
-include <windows.h>
+#include <windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/) {
 return 0;
 }
@@ -140,7 +140,7 @@ Awesome! Well done. We’re on our way to getting a directX renderer going.
 ##Start using DirectX 
 Ok next we’re actually going to jump into using DirectX. First we need to include the directX header file at the top of our main.cpp file.
 #CODE
-include <d3d11_1.h>
+#include <d3d11_1.h>
 #ENDCODE
 First we’re going to create two things — a d3d11device and a d3d11DeviceContext. When we create a device, we’re specifying what type of d3d features we want (just d3d11, or d3d9 and d3d10 aswell?), whether we want software or hardware (using the GPU) rendering? And what type of pixel format do we want to support?
 
@@ -189,7 +189,7 @@ cl main.cpp /link user32.lib d3d11.lib
 #ENDCODE
 Also make sure you include assert at the top of main.cpp
 #CODE
-include <assert.h>
+#include <assert.h>
 #ENDCODE
 #HR
 ###Activate the Debug Layer
