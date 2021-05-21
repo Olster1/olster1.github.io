@@ -1,7 +1,7 @@
 #CARD
 #TITLE Using DirectX 11 for games: Part 1
 #CARD
-#ANCHOR https://github.com/kevinmoran/BeginnerDirect3D11 This series is based on Kevin Moran's great DirectX tutorial code which you can get here
+#ANCHOR https://github.com/kevinmoran/BeginnerDirect3D11 This series is based on Kevin Moran's brilliant DirectX tutorial code which you can get here
 
 In this article, I’m going to walk through creating a DirectX 11 context to use with your games. DirectX 11 is the native graphics API for Windows. DirectX has advantages over OpenGL in that it is more reliable on Windows computers — this is an advantage when it comes time to ship your game. You want it to work on as many machines as possible with the least hiccups. You don’t want half your users (or worse!) to load your game up and find a blank screen. The other advantage over OpenGL is that DirectX is a lot easier to reason about. OpenGL is a giant state machine where you bind textures, vertex arrays, and options like blend modes which stay bound until you specifically unbind them or unset them. This can lead to bugs that can be hard to find. DirectX 11 API is less of a state machine, and more function calls that you can reason, making the experience of graphics program more enjoyable.
 
@@ -124,8 +124,9 @@ while(running) {
 MSG msg = {};
         while(PeekMessageW(&msg, 0, 0, 0, PM_REMOVE))
         {
-            if(msg.message == WM_QUIT)
-                isRunning = false;
+            if(msg.message == WM_QUIT) {
+                running = false;
+            }
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
