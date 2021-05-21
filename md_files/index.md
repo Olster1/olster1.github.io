@@ -3,7 +3,7 @@
 #BR 
 #HR 
 ##I'm Ollie. A game programmer and teacher.  
-###I love learning about how games work and teaching the conepts in simple and intuitive ways.
+###I love learning about how games work and teaching the concepts in simple and intuitive ways.
 #HR
 ###<b>Game Engine Development</b>
 ####Direct X
