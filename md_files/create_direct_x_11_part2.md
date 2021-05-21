@@ -73,9 +73,9 @@ HRESULT hResult = D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "ps_main
         if(FAILED(hResult))
         {
             const char* errorString = NULL;
-            if(hResult == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+            if(hResult == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
                 errorString = "Could not compile shader; file not found";
-            else if(shaderCompileErrorsBlob){ //if there are compiler errors
+            } else if(shaderCompileErrorsBlob){ //if there are compiler errors
                 errorString = (const char*)shaderCompileErrorsBlob->GetBufferPointer();
                 shaderCompileErrorsBlob->Release();
             }

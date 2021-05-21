@@ -456,6 +456,12 @@ int main(int argc, char **args) {
 											} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
 												color = COLOR_VARIABLE;
 												writeColor(&state, color);
+											} else if(stringsMatchNullN("else", lastWord, 4) && wordLength == 5) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("const", lastWord, 5) && wordLength == 6) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
 											} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
 												color = COLOR_VARIABLE;
 												writeColor(&state, color);
