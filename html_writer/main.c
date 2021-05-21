@@ -5,6 +5,9 @@
 #include "easy_string.h"
 #include "easy_files.h"
 
+// #include "webkit.h"
+// #include "webkit.c"
+
 typedef struct {
 	InfiniteAlloc contentsToWrite;
 	InfiniteAlloc tempHtmlEncoded;
@@ -128,10 +131,10 @@ static void writeNavBar(FileState *state) {
 	        <span class=\"icon-bar\"></span>\
 	        <span class=\"icon-bar\"></span>\
 	      </button>\
-	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 5cm;\" src=\"./photos/logo2.svg\"></a>\
+	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 7cm;\" src=\"./photos/logo2.svg\"></a>\
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
-	      <ul class=\"nav navbar-nav navbar-right\">\
+	      <ul class=\"nav navbar-nav navbar-right\"  style=\"margin-top: 25px;\">\
 	        <li><a href=\"./index.html\">Direct X</a></li>\
 	      	<li><a href=\"./index.html\">Games</a></li>\
 	      	<li><a href=\"./about.html\">About</a></li>\
@@ -210,6 +213,50 @@ static u32 writeText_returnSize_encoded(FileState *state, char *text, u32 sizeIn
 	return sizeInBytes;
 }
 
+static void writeAnchorTag(FileState *state, u8 **at_) {
+	u8 *at = *at_;
+
+	{
+		char *str = "<a target='_blank' href='";
+		addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
+	}
+
+	//move pass space
+	if(at[0] == ' ') {
+		at++;	
+	}
+	
+	
+
+	//add the web address
+	while(*at != ' ' && *at != '\r' && *at != '\n'&& *at != '\0') {
+		addElementInifinteAllocWithCount_(&state->contentsToWrite, at, 1);
+		at++;
+	}
+
+	{
+		char *str = "'>";
+		addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
+	}
+
+	
+	//write till end of line
+	at += writeTextUntileNewLine_withSize(state, at);
+
+
+	char *str = " 👆";
+	addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
+
+	{
+		char *str = "</a>";
+		addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
+	}
+
+	writeLineBreak(state, 2);
+
+	*at_ = at;
+	
+}
 
 #define writeH1(state, text) writeH1_(state, text, easyString_getSizeInBytes_utf8(text))
 #define writeH1_withSize(state, text) writeH1_(state, text, getBytesUntilNewLine((u8 *)text))
@@ -225,7 +272,7 @@ static u32 writeH1_(FileState *state, char *title, u32 sizeInBytes) {
 static u32 writeH2_(FileState *state, char *title, u32 sizeInBytes) {
 	writeText(state, "<h2>");
 	writeText_(state, title, sizeInBytes);
-	writeText(state, "</h2>");
+	writeText(state, "</h2><br>");
 	return sizeInBytes;
 }
 
@@ -264,7 +311,7 @@ static void writeEndCodeBlock(FileState *state) {
 }
 
 static void startInfoCard(FileState *state) {
-	char *text = "<div class=\"row\">\n<div class=\"col-sm-10\">\n<div class=\"info-card\">\n";
+	char *text = "<div class=\"row\">\n<div class=\"col-sm-10 col-md-12 col-lg-12\">\n<div class=\"info-card\">\n";
 
 	u32 sizeInBytes = easyString_getSizeInBytes_utf8(text);
 	addElementInifinteAllocWithCount_(&state->contentsToWrite, text, sizeInBytes);
@@ -316,6 +363,7 @@ int main(int argc, char **args) {
 			
 			u8 *result = openFileNullTerminate(filesToConvert.names[fileIndex]);
 			u8 *at = result;
+			u8 *lastNewLineAt = 0;
 			while(*at) {
 				// printf("%s\n", at);
 				if(false) {
@@ -339,16 +387,23 @@ int main(int argc, char **args) {
 								depthInFunction--;
 								assert(depthInFunction >= 0);
 							}
+							lastNewLineAt = at;
 
 							for(int i = 0; i < depthInFunction; ++i) {
 								writeWhiteSpaceTab(&state);
 							}
 							
-							
 							wasNewLine = false;
 						} else if(*at == '\n' || *at == '\r') {
-							writeLineBreak(&state, 1);
-							eatWhiteSpace(&at);
+
+							while(*at == '\n' || *at == '\r') {
+								writeLineBreak(&state, 1);
+								if(*at == '\r' && at[1] == '\n') {
+									at++;
+								}
+								at++;
+								
+							}
 							wasNewLine = true;
 						} else {
 							u8 *tempAt = at;
@@ -362,58 +417,101 @@ int main(int argc, char **args) {
 								endColor(&state);
 							} else {
 
-								while(*tempAt != '\n' && *tempAt != '\r' && *tempAt != '\0') {
-									if(tempAt[0] == '{') {
-										depthInFunction++;
-									} 
+								while(*tempAt != '\0') {
 
-									wordLength++;
+									//comment in a line
+									if(tempAt[0] == '/' && tempAt[1] == '/') {
+										writeColor(&state, COLOR_COMMENT);
+										tempAt += writeTextUntileNewLine_withSize(&state, tempAt);
+										endColor(&state);
+										assert(tempAt[0] == '\r');
+										lastWord = 0;
+										wordLength = 0;
+										break;
+									} else 
+									{
 
-									if(tempAt[0] == '(' || tempAt[0] == ')' || tempAt[1] == '(' || tempAt[1] == ')' || *tempAt == ' ' || tempAt[1] == '\n' || tempAt[1] == '\r') {
-										SyntaxColor color = COLOR_NULL;
-										if(*tempAt == '(') {
-											color = COLOR_BRACKET;
-											writeColor(&state, color);
-										} else if(tempAt[1] == '(') {
-											color = COLOR_KEYWORD;
-											writeColor(&state, color);
-										} else if(*tempAt == ')') {
-											color = COLOR_BRACKET;
-											writeColor(&state, color);
-										} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
-											color = COLOR_VARIABLE;
-											writeColor(&state, color);
-										} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
-											color = COLOR_VARIABLE;
-											writeColor(&state, color);
-										} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
-											color = COLOR_VARIABLE;
-											writeColor(&state, color);
-										} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
-											color = COLOR_KEYWORD;
-											writeColor(&state, color);
-										} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
-											color = COLOR_VARIABLE;
-											writeColor(&state, color);
-										} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
-											color = COLOR_PREPROCESSOR;
-											writeColor(&state, color);
-										} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
-											color = COLOR_VARIABLE;
-											writeColor(&state, color);
+										if(tempAt[0] == '{') {
+											depthInFunction++;
+										} 
+
+										if(tempAt[0] == '}' && tempAt != lastNewLineAt) {
+											assert(depthInFunction > 0);
+											depthInFunction--;
+										} 
+
+										wordLength++;
+
+										if(tempAt[0] == '(' || tempAt[0] == ')' || tempAt[1] == '(' || tempAt[1] == ')' || *tempAt == ' ' || *tempAt == '\n' || *tempAt == '\r') {
+											SyntaxColor color = COLOR_NULL;
+											if(*tempAt == '(') {
+												color = COLOR_BRACKET;
+												writeColor(&state, color);
+											} else if(tempAt[1] == '(') {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(*tempAt == ')') {
+												color = COLOR_BRACKET;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("bool", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("true", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("false", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#if", lastWord, 3) && wordLength == 4) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#endif", lastWord, 6) && wordLength == 7) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#ifdef", lastWord, 6) && wordLength == 7) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											}
+
+
+											writeText_returnSize_encoded(&state, lastWord, wordLength);
+											wordLength = 0;	
+											lastWord = tempAt + 1;
+
+											if(color != COLOR_NULL) {
+												endColor(&state);
+											}
+										} 
+
+
+										if(*tempAt == '\n' || *tempAt == '\r') {
+											break;
 										}
 
+										tempAt++;
 
-										writeText_returnSize_encoded(&state, lastWord, wordLength);
-										wordLength = 0;	
-										lastWord = tempAt + 1;
-
-										if(color != COLOR_NULL) {
-											endColor(&state);
-										}
-									} 
-
-									tempAt++;
+									}
 								}
 							}
 
@@ -423,6 +521,9 @@ int main(int argc, char **args) {
 						}
 						
 					}
+				} else if(at[0] == '\r' || at[0] == '\n') {
+					writeLineBreak(&state, 1);
+					eatWhiteSpace(&at);
 				} else if(stringsMatchNullN("#CODE", at, 5)) {
 					inCodeBlock = true;
 					at += 5;
@@ -442,6 +543,7 @@ int main(int argc, char **args) {
 					at += 3;
 					writeSeperator(&state);
 					eatWhiteSpace(&at);
+					eatWhiteSpace(&at);
 				} else if(stringsMatchNullN("#BR", at, 3)) { //NOTE(ollie): paragraph
 					at += 3;
 					writeLineBreak(&state, 1);
@@ -452,6 +554,7 @@ int main(int argc, char **args) {
 				} else if(stringsMatchNullN("###", at, 3)) { //NOTE(ollie): H3
 					at += 3;
 					at += writeH3_withSize(&state, at);
+					writeLineBreak(&state, 1);
 				} else if(stringsMatchNullN("#TITLE", at, 6)) { //NOTE(ollie): H1
 					at += 6;
 					if(at[0] == ' ') {
@@ -470,13 +573,21 @@ int main(int argc, char **args) {
 					at += 2;
 					at += writeH2_withSize(&state, at);
 					eatWhiteSpace(&at);
-				} else if(stringsMatchNullN("#", at, 1)) { //NOTE(ollie): paragraph
-					at++;
+				} else if(stringsMatchNullN("#ANCHOR", at, 7)) { //NOTE(ollie): <a> tag
+					at += 7;
+					writeAnchorTag(&state, &at);
+					eatWhiteSpace(&at);
+
+				} else if(stringsMatchNullN("#QUESTION", at, 9)) { //NOTE(ollie): <a> tag
+					at += 9;
+					writeAnchorTag(&state, &at);
+					eatWhiteSpace(&at);
+				} else { //(stringsMatchNullN("#", at, 1)) { //NOTE(ollie): paragraph
+					// at++;
 					at += writeParagraph_withSize(&state, at);
-				} else {
-					at++;
-				}
+				} 
 			}
+			
 
 			if(inCard) {
 				endInfoCard(&state);

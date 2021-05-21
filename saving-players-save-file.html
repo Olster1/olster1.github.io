@@ -1,44 +1,46 @@
-<!DOCTYPE html>	<html lang="en">		<head>		  <title>Oliver Marsh</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 5cm;" src="./photos/logo2.svg"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right">	        <li><a href="./index.html">Direct X</a></li>	      	<li><a href="./index.html">Games</a></li>	      	<li><a href="./about.html">About</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
-<div class="col-sm-10">
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Oliver Marsh</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 7cm;" src="./photos/logo2.svg"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./index.html">Direct X</a></li>	      	<li><a href="./index.html">Games</a></li>	      	<li><a href="./about.html">About</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
 <div class="info-card">
 <h1>Saving player’s save file to a safe location</h1><br><hr><p>
-If you're familiar with games on Windows, you may have come across the <b>AppData/Local</b> folder. Each user on the computer has their own AppData folder and is the default place to save things like a player's save state.</p>
-<p>
-Why can’t you just save it to the folder your game is installed in?</p>
-<p>
-Different users on the computer might not want another user seeing their save state.</p>
-<p>
-And, importantly from a programming standpoint, depending on where the user installs your game, you might not have permission to write to your game folder. Making the game either crash or not save the player’s progress, either one not good.</p>
-<p>
-So the solution to this is saving it in a file location that is unique to each user and the os expects things to write in this location. This is what the AppData/ folder is for-saving things like user settings and progress files, which can be loaded up again when the user starts the program again.</p>
-<p>
-We will be saving our data in the Local folder. The Roaming folder is used by online programs to synchronize the user's data across machines. Whereas Local and LocalLow are specific to that machine.</p>
-<p>
-In your code, you might want to create a function called getSaveFileLocation(). This would return the full file path to the folder.</p>
-<br><div class="code-block-left "><span style="color: #6B8E23;">char </span><span style="color: #CD950C;">*getSaveFileLocation</span><span style="color: #A08563;">(</span><span style="color: #A08563;">)</span> {<br>&emsp;&emsp;&emsp;&emsp;<span style="color: #6B8E23;">char </span>*result = <span style="color: #6B8E23;">0;</span><br>&emsp;&emsp;&emsp;&emsp;<span style="color: #7D7D7D;">//find the file path here</span><br>&emsp;&emsp;&emsp;&emsp;<span style="color: #CD950C;">return </span>result;<br>}<br></div><br><p>
-To get the filepath we use the Windows specific function SHGetKnownFolderPath, passing in the folder Id we want-FOLDERID_LocalAppData. It looks like this:</p>
-<div class="code-block-left ">PWSTR  win32_wideString_utf16 = <span style="color: #6B8E23;">0;</span><br><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">SHGetKnownFolderPath</span><span style="color: #A08563;">(</span><br>FOLDERID_LocalAppData,<br>KF_FLAG_CREATE,<br><span style="color: #6B8E23;">0,</span><br><span style="color: #A08563;">(</span>PWSTR *<span style="color: #A08563;">)</span>&win32_wideString_utf16<br><span style="color: #A08563;">)</span> != S_OK<span style="color: #A08563;">)</span> {<br>&emsp;&emsp;&emsp;&emsp;<span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>false<span style="color: #A08563;">)</span>;<br>&emsp;&emsp;&emsp;&emsp;<span style="color: #CD950C;">return </span>result;<br>}<br></div><br><p>
-We pass in a pointer to a wide string to be filled out since windows use wide strings (2 bytes per character) for Unicode. We want to create this folder if it doesn’t exist by passing in KF_FLAG_CREATE. And we assert false if this function doesn’t succeed.</p>
-<p>
-This would be it if our program was using wide strings. But unfortunately (or fortunately!) most applications deal with utf8 encoded strings. So we have to do another step of converting it to utf8. Let’s do this:</p>
-<div class="code-block-left "><span style="color: #6B8E23;">int </span>bufferSize_inBytes = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span><br>CP_UTF8,<br><span style="color: #6B8E23;">0,</span><br>win32_wideString_utf16,<br><span style="color: #6B8E23;">-1,</span><br><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>result, <br><span style="color: #6B8E23;">0,</span><br><span style="color: #6B8E23;">0, </span><br><span style="color: #6B8E23;">0</span><br><span style="color: #A08563;">)</span>;<br></div><br><p>
-By passing in no buffer length (argument 6), it just gives the resulting string length in bytes that we need to allocate.</p>
-<p>
-Once we get that back we can now allocate it however you would like to allocate the string. We’re going to use malloc for instructional purposes.</p>
-<div class="code-block-left ">result = <span style="color: #CD950C;">malloc</span><span style="color: #A08563;">(</span>bufferSize_inBytes<span style="color: #A08563;">)</span>;<br></div><br><p>
-We then call the same function as above, but this time passing in the buffer size.</p>
-<div class="code-block-left "><span style="color: #6B8E23;">u32 </span>bytesWritten = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span><br>CP_UTF8,<br><span style="color: #6B8E23;">0,</span><br>win32_wideString_utf16,<br><span style="color: #6B8E23;">-1,</span><br><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>result, <br>bufferSize_inBytes,<br><span style="color: #6B8E23;">0, </span><br><span style="color: #6B8E23;">0</span><br><span style="color: #A08563;">)</span>;<br></div><br><p>
-Yay! We’ve got our utf8 encoded string of the location of Local folder.</p>
-<div class="code-block-left "><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>bytesWritten == bufferSize_inBytes<span style="color: #A08563;">)</span>;<br></div><br><p>
-We then free the wide string like so:</p>
-<div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: Free the string</span><br><span style="color: #CD950C;">CoTaskMemFree</span><span style="color: #A08563;">(</span>win32_wideString_utf16<span style="color: #A08563;">)</span>;<br></div><br><p>
-We also have to include the header that contains the functions & enums that we’re using.</p>
-<div class="code-block-left "><span style="color: #DAB98F;">#include </span>&lt;Shlobj.h&gt;<br></div><br><p>
-Now finally we have to link to the correct .libs — CoTaskMemFree is in Ole32.lib and SHGetKnownFolderPath is in Shell32.lib.</p>
-<div class="code-block-left ">cl main.cpp /link Shell32.lib Ole32.lib<br></div><br><p>
-<a href='https://github.com/Olster1/windows_tutorials/blob/main/appData_local_function/main.cpp'>The full code can be found here 👆</a></p>
-<p>
-Thanks for reading!</p>
+#If you're familiar with games on Windows, you may have come across the <b>AppData/Local</b> folder. Each user on the computer has their own AppData folder and is the default place to save things like a player's save state.</p>
+<br><p>
+#Why can’t you just save it to the folder your game is installed in?</p>
+<br><p>
+#Different users on the computer might not want another user seeing their save state.</p>
+<br><p>
+#And, importantly from a programming standpoint, depending on where the user installs your game, you might not have permission to write to your game folder. Making the game either crash or not save the player’s progress, either one not good.</p>
+<br><p>
+#So the solution to this is saving it in a file location that is unique to each user and the os expects things to write in this location. This is what the AppData/ folder is for-saving things like user settings and progress files, which can be loaded up again when the user starts the program again.</p>
+<br><p>
+#We will be saving our data in the Local folder. The Roaming folder is used by online programs to synchronize the user's data across machines. Whereas Local and LocalLow are specific to that machine.</p>
+<br><p>
+#In your code, you might want to create a function called getSaveFileLocation(). This would return the full file path to the folder.</p>
+<br><br><div class="code-block-left "><span style="color: #6B8E23;">char </span><span style="color: #CD950C;">*getSaveFileLocation</span><span style="color: #A08563;">(</span><span style="color: #A08563;">)</span> {<br>&emsp;&emsp;&emsp;&emsp;<span style="color: #6B8E23;">char </span>*result = <span style="color: #6B8E23;">0;</span><br>&emsp;&emsp;&emsp;&emsp;<span style="color: #7D7D7D;">//find the file path here</span><br>&emsp;&emsp;&emsp;&emsp;<span style="color: #CD950C;">return </span>result;<br>}<br></div><br><p>
+#To get the filepath we use the Windows specific function SHGetKnownFolderPath, passing in the folder Id we want-FOLDERID_LocalAppData. It looks like this:</p>
+<br><div class="code-block-left ">PWSTR  win32_wideString_utf16 = <span style="color: #6B8E23;">0;</span><br><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">SHGetKnownFolderPath</span><span style="color: #A08563;">(</span><br>FOLDERID_LocalAppData,<br>KF_FLAG_CREATE,<br><span style="color: #6B8E23;">0,</span><br><span style="color: #A08563;">(</span>PWSTR *<span style="color: #A08563;">)</span>&win32_wideString_utf16<br><span style="color: #A08563;">)</span> != S_OK<span style="color: #A08563;">)</span> {<br>&emsp;&emsp;&emsp;&emsp;<span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>false<span style="color: #A08563;">)</span>;<br>&emsp;&emsp;&emsp;&emsp;<span style="color: #CD950C;">return </span>result;<br>}<br></div><br><p>
+#We pass in a pointer to a wide string to be filled out since windows use wide strings (2 bytes per character) for Unicode. We want to create this folder if it doesn’t exist by passing in KF_FLAG_CREATE. And we assert false if this function doesn’t succeed.</p>
+<br><p>
+#This would be it if our program was using wide strings. But unfortunately (or fortunately!) most applications deal with utf8 encoded strings. So we have to do another step of converting it to utf8. Let’s do this:</p>
+<br><div class="code-block-left "><span style="color: #6B8E23;">int </span>bufferSize_inBytes = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span><br>CP_UTF8,<br><span style="color: #6B8E23;">0,</span><br>win32_wideString_utf16,<br><span style="color: #6B8E23;">-1,</span><br><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>result, <br><span style="color: #6B8E23;">0,</span><br><span style="color: #6B8E23;">0, </span><br><span style="color: #6B8E23;">0</span><br><span style="color: #A08563;">)</span>;<br></div><br><p>
+#By passing in no buffer length (argument 6), it just gives the resulting string length in bytes that we need to allocate.</p>
+<br><p>
+#Once we get that back we can now allocate it however you would like to allocate the string. We’re going to use malloc for instructional purposes.</p>
+<br><div class="code-block-left ">result = <span style="color: #CD950C;">malloc</span><span style="color: #A08563;">(</span>bufferSize_inBytes<span style="color: #A08563;">)</span>;<br></div><br><p>
+#We then call the same function as above, but this time passing in the buffer size.</p>
+<br><div class="code-block-left "><span style="color: #6B8E23;">u32 </span>bytesWritten = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span><br>CP_UTF8,<br><span style="color: #6B8E23;">0,</span><br>win32_wideString_utf16,<br><span style="color: #6B8E23;">-1,</span><br><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>result, <br>bufferSize_inBytes,<br><span style="color: #6B8E23;">0, </span><br><span style="color: #6B8E23;">0</span><br><span style="color: #A08563;">)</span>;<br></div><br><p>
+#Yay! We’ve got our utf8 encoded string of the location of Local folder.</p>
+<br><p>
+We can make sure we got the full string that we’re supposed to get.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>bytesWritten == bufferSize_inBytes<span style="color: #A08563;">)</span>;<br></div><br><p>
+#We then free the wide string like so:</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: Free the string</span><br><span style="color: #CD950C;">CoTaskMemFree</span><span style="color: #A08563;">(</span>win32_wideString_utf16<span style="color: #A08563;">)</span>;<br></div><br><p>
+#We also have to include the header that contains the functions & enums that we’re using.</p>
+<br><div class="code-block-left "><span style="color: #DAB98F;">#include </span>&lt;Shlobj.h&gt;<br></div><br><p>
+#Now finally we have to link to the correct .libs — CoTaskMemFree is in Ole32.lib and SHGetKnownFolderPath is in Shell32.lib.</p>
+<br><div class="code-block-left ">cl main.cpp /link Shell32.lib Ole32.lib<br></div><br><p>
+#<a href='https://github.com/Olster1/windows_tutorials/blob/main/appData_local_function/main.cpp'>The full code can be found here 👆</a></p>
+<br><p>
+#Thanks for reading!</p>
 </div>
 </div>
 </div>

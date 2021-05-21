@@ -9,9 +9,19 @@ body {
   background-repeat: repeat;
 }
 
+hr {
+    display: block; 
+    height: 1cm;
+    border: 0; 
+    border-top: 1px solid #000080;
+    thickness: 1cm;
+    margin: 1em 0; 
+    padding: 0; 
+}
+
 .info-card {
 	margin: 1em;
-	padding: 1em;
+	padding: 0;
 	background-color: white;
 }
 
@@ -47,7 +57,7 @@ body {
 
 .code-block-left {
   text-align: left;
-  padding: 5%;
+  padding: 1cm;
   padding-top: 1%;
   padding-bottom: 1%;
   background-color: #161616;
