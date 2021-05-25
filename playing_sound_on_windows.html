@@ -1,0 +1,39 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Oliver Marsh</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 7cm;" src="./photos/logo2.svg"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./index.html">Direct X</a></li>	      	<li><a href="./index.html">Games</a></li>	      	<li><a href="./about.html">About</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><p>
+Here is how sound output computation works.</p>
+<br><p>
+We define a safety value that is the number</p>
+<br><p>
+of samples we think our game update loop</p>
+<br><p>
+may vary by (let's say up to 2ms)</p>
+<br><p>
+When we wake up to write audio, we will look</p>
+<br><p>
+and see what the play cursor position is and we</p>
+<br><p>
+will forecast ahead where we think the play</p>
+<br><p>
+cursor will be on the next frame boundary.</p>
+<br><p>
+We will then look to see if the write cursor is</p>
+<br><p>
+before that by at least our safety value.  If</p>
+<br><p>
+it is, the target fill position is that frame</p>
+<br><p>
+boundary plus one frame.  This gives us perfect</p>
+<br><p>
+audio sync in the case of a card that has low</p>
+<br><p>
+enough latency.</p>
+<br><p>
+If the write cursor is _after_ that safety</p>
+<br><p>
+margin, then we assume we can never sync the</p>
+<br><p>
+audio perfectly, so we will write one frame's</p>
+<br><p>
+worth of audio plus the safety margin's worth</p>
+<br><p>
+of guard samples.</p>
+<br><br></div></body></html>

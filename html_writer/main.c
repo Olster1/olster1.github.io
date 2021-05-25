@@ -331,7 +331,16 @@ static void writeFooter(FileState *state) {
 
 static void eatWhiteSpace(u8 **at_) {
 	u8 *at = *at_;
-	while(*at && (at[0] == '\n' || at[0] == '\r' || at[0] == ' ')) {
+	while(*at && (at[0] == '\n' || at[0] == '\r' || at[0] == ' ' || at[0] == 9)) { //9 is tab
+		at++;
+	}
+
+	(*at_) = at;
+}
+
+static void eatWhiteSpace_justSpaces(u8 **at_) {
+	u8 *at = *at_;
+	while(*at && (at[0] == ' ' || at[0] == 9)) { //9 is tab
 		at++;
 	}
 
@@ -383,11 +392,17 @@ int main(int argc, char **args) {
 
 						if(wasNewLine) {
 							eatWhiteSpace(&at);
+
 							if(at[0] == '}') {
 								depthInFunction--;
 								assert(depthInFunction >= 0);
 							}
 							lastNewLineAt = at;
+
+							//Use this to debug what depth in the scope stack we are in and what's at the start of the line
+							// char buffer[45];
+							// sprintf(buffer, "%d%c", depthInFunction, at[0]);
+							// writeText_returnSize_encoded(&state, buffer, 2);
 
 							for(int i = 0; i < depthInFunction; ++i) {
 								writeWhiteSpaceTab(&state);
@@ -396,12 +411,28 @@ int main(int argc, char **args) {
 							wasNewLine = false;
 						} else if(*at == '\n' || *at == '\r') {
 
+
 							while(*at == '\n' || *at == '\r') {
+								// char buffer[45];
+								// sprintf(buffer, "^");
+								// writeText_returnSize_encoded(&state, buffer, 1);
+
 								writeLineBreak(&state, 1);
-								if(*at == '\r' && at[1] == '\n') {
+								//skip passed windows style double newline feeds - /r/n
+								if((*at == '\r' && at[1] == '\n')) {
 									at++;
+
+									// char buffer[45];
+									// sprintf(buffer, "&");
+									// writeText_returnSize_encoded(&state, buffer, 1);
 								}
+
+								//move pass the new line character
 								at++;
+
+								eatWhiteSpace_justSpaces(&at);
+
+								
 								
 							}
 							wasNewLine = true;
@@ -409,6 +440,7 @@ int main(int argc, char **args) {
 							u8 *tempAt = at;
 							u32 wordLength = 0;
 							u8 *lastWord = tempAt;
+							assert(lastWord[0] != '\n' || lastWord[0] != '\r')
 
 							//comment
 							if(tempAt[0] == '/' && tempAt[1] == '/') {
@@ -416,6 +448,8 @@ int main(int argc, char **args) {
 								tempAt += writeTextUntileNewLine_withSize(&state, at);
 								endColor(&state);
 							} else {
+								bool isString = false;
+								SyntaxColor color = COLOR_NULL;
 
 								while(*tempAt != '\0') {
 
@@ -442,65 +476,94 @@ int main(int argc, char **args) {
 
 										wordLength++;
 
-										if(tempAt[0] == '(' || tempAt[0] == ')' || tempAt[1] == '(' || tempAt[1] == ')' || *tempAt == ' ' || *tempAt == '\n' || *tempAt == '\r') {
-											SyntaxColor color = COLOR_NULL;
-											if(*tempAt == '(') {
-												color = COLOR_BRACKET;
-												writeColor(&state, color);
-											} else if(tempAt[1] == '(') {
-												color = COLOR_KEYWORD;
-												writeColor(&state, color);
-											} else if(*tempAt == ')') {
-												color = COLOR_BRACKET;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("else", lastWord, 4) && wordLength == 5) {
-												color = COLOR_KEYWORD;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("const", lastWord, 5) && wordLength == 6) {
-												color = COLOR_KEYWORD;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
-												color = COLOR_KEYWORD;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("bool", lastWord, 4) && wordLength == 5) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("true", lastWord, 4) && wordLength == 5) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("false", lastWord, 4) && wordLength == 5) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
+										if(!isString) {
+											color = COLOR_NULL;
+										}
+
+										if(tempAt[0] == '\"') {
+											if(!isString) {
 												color = COLOR_PREPROCESSOR;
 												writeColor(&state, color);
-											} else if(stringsMatchNullN("#if", lastWord, 3) && wordLength == 4) {
-												color = COLOR_PREPROCESSOR;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("struct", lastWord, 6) && wordLength == 7) {
-												color = COLOR_KEYWORD;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("#endif", lastWord, 6) && wordLength == 7) {
-												color = COLOR_PREPROCESSOR;
-												writeColor(&state, color);
-											} else if(stringsMatchNullN("#ifdef", lastWord, 6) && wordLength == 7) {
-												color = COLOR_PREPROCESSOR;
-												writeColor(&state, color);
-											} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
-												color = COLOR_VARIABLE;
-												writeColor(&state, color);
+												isString = true;
+											} else {
+												isString = false;
+											}
+										}
+
+										if(tempAt[0] == '(' || tempAt[0] == ')' || tempAt[1] == '(' || tempAt[1] == ')' || *tempAt == ' ' || *tempAt == '\n' || *tempAt == '\r' || (*tempAt == '\"' && !isString)) {
+											
+											
+											if(!isString) {
+												if(*tempAt == '(') {
+													color = COLOR_BRACKET;
+													writeColor(&state, color);
+												} else if(tempAt[1] == '(') {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(*tempAt == ')') {
+													color = COLOR_BRACKET;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("else", lastWord, 4) && wordLength == 5) {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("enum", lastWord, 4) && wordLength == 5) {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("static", lastWord, 6) && wordLength == 7) {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("const", lastWord, 5) && wordLength == 6) {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("bool", lastWord, 4) && wordLength == 5) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("true", lastWord, 4) && wordLength == 5) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("unsigned", lastWord, 8) && wordLength == 9) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("false", lastWord, 4) && wordLength == 5) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
+													color = COLOR_PREPROCESSOR;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("#if", lastWord, 3) && wordLength == 4) {
+													color = COLOR_PREPROCESSOR;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("#define", lastWord, 7) && wordLength == 8) {
+													color = COLOR_PREPROCESSOR;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("struct", lastWord, 6) && wordLength == 7) {
+													color = COLOR_KEYWORD;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("#endif", lastWord, 6) && wordLength == 7) {
+													color = COLOR_PREPROCESSOR;
+													writeColor(&state, color);
+												} else if(stringsMatchNullN("#ifdef", lastWord, 6) && wordLength == 7) {
+													color = COLOR_PREPROCESSOR;
+													writeColor(&state, color);
+												} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
+													color = COLOR_VARIABLE;
+													writeColor(&state, color);
+												}
 											}
 
 
@@ -510,6 +573,7 @@ int main(int argc, char **args) {
 
 											if(color != COLOR_NULL) {
 												endColor(&state);
+												color = COLOR_NULL;
 											}
 										} 
 
@@ -538,6 +602,14 @@ int main(int argc, char **args) {
 					at += 5;
 					writeCodeBlock(&state);
 					eatWhiteSpace(&at);
+					//NOTE: below code is if we don't want to ignore the newlines at the start of a code block. For consistentancy I turned it off 
+					// eatWhiteSpace_justSpaces(&at);
+					// if(*at == '\r' || *at == '\n') {
+					// 	if(*at == '\r' && at[1] == '\n') {
+					// 		at++;
+					// 	}
+					// 	at++;
+					// }
 
 				} else if(stringsMatchNullN("#CARD", at, 5)) { //NOTE(ollie): paragraph
 					at += 5;
