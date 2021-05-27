@@ -1207,7 +1207,7 @@ Phew! We did it. There's quite a bit of code but hopefully it makes sense.
 
 The first bit is splicing in our new string into our input buffer. We make sure we don't override any characters in the buffer after the cursor so we make a copy of it. We then copy our new string into the buffer starting at the cursor location. Next we copy back in the characters we saved.
 
-After we've spiced our string into the buffer, we process our command buffer, moving the cursor left or right, and if it's a backspace, moving all the characters up by one character. 
+After we've spliced our string into the buffer, we process our command buffer, moving the cursor left or right, and if it's a backspace, moving all the characters up by one character. 
 
 Since we're treating all characters as 1 byte length, this isn't immediately unicode compatible, but with not much work you can change that.  
 
