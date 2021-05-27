@@ -6,11 +6,12 @@
 ###I love learning about how games work and teaching the concepts in simple and intuitive ways.
 #HR
 ###<b>Game Engine Development</b>
-####Direct X
-<a href="./create_direct_x_11.html">Simple DirectX: Part 1</a>
-<a href="./create_direct_x_11_part2.html">Simple DirectX: Part 2</a>
-<a href="./create_direct_x_11_part3.html">Simple DirectX: Part 3</a>
+####Direct 3d
+<a href="./create_direct_x_11.html">Simple Direct3d: Part 1</a>
+<a href="./create_direct_x_11_part2.html">Simple Direct3d: Part 2</a>
+<a href="./create_direct_x_11_part3.html">Simple Direct3d: Part 3</a>
 #HR
+####Windows Games 
 <a href="./windows-keyboard-input.html">Windows Keyboard Input</a>
 <a href="./saving-players-save-file.html">Saving player’s save file to a safe location</a>
 #HR

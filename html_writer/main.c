@@ -213,7 +213,7 @@ static u32 writeText_returnSize_encoded(FileState *state, char *text, u32 sizeIn
 	return sizeInBytes;
 }
 
-static void writeAnchorTag(FileState *state, u8 **at_) {
+static void writeAnchorTag(FileState *state, u8 **at_, bool addButton) {
 	u8 *at = *at_;
 
 	{
@@ -239,13 +239,22 @@ static void writeAnchorTag(FileState *state, u8 **at_) {
 		addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
 	}
 
-	
+	if(addButton) {
+		char *str = "<div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'>";
+		writeText_(state, str, easyString_getSizeInBytes_utf8(str));
+	}
+
 	//write till end of line
 	at += writeTextUntileNewLine_withSize(state, at);
 
 
 	char *str = " 👆";
 	addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
+
+	if(addButton) {
+		str = "</div>";
+		writeText_(state, str, easyString_getSizeInBytes_utf8(str));
+	}
 
 	{
 		char *str = "</a>";
@@ -654,14 +663,21 @@ int main(int argc, char **args) {
 					at += 2;
 					at += writeH2_withSize(&state, at);
 					eatWhiteSpace(&at);
+				} else if(stringsMatchNullN("#ANCHOR_IMPORTANT", at, 17)) { //NOTE(ollie): <a> tag with green background
+					at += 17;
+
+					writeAnchorTag(&state, &at, true);
+					eatWhiteSpace(&at);
+
+					
 				} else if(stringsMatchNullN("#ANCHOR", at, 7)) { //NOTE(ollie): <a> tag
 					at += 7;
-					writeAnchorTag(&state, &at);
+					writeAnchorTag(&state, &at, false);
 					eatWhiteSpace(&at);
 
 				} else if(stringsMatchNullN("#QUESTION", at, 9)) { //NOTE(ollie): <a> tag
 					at += 9;
-					writeAnchorTag(&state, &at);
+					writeAnchorTag(&state, &at, false);
 					eatWhiteSpace(&at);
 				} else { //(stringsMatchNullN("#", at, 1)) { //NOTE(ollie): paragraph
 					// at++;

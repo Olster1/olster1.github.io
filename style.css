@@ -3,15 +3,15 @@
 	padding: 0;
 }
 body {
-  font: 20px 'Montserrat', sans-serif;
-  line-height: 1.8;
+  font: 15px 'Montserrat', sans-serif;
+  line-height: 1.7;
   /*background-image: url("alchemy.gif");*/
   background-repeat: repeat;
 }
 
 hr {
     display: block; 
-    height: 1cm;
+    height: 0.5cm;
     border: 0; 
     border-top: 1px solid #000080;
     thickness: 1cm;
@@ -19,10 +19,20 @@ hr {
     padding: 0; 
 }
 
+h2 {
+  font-size: 26px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
 .info-card {
 	margin: 1em;
 	padding: 0;
 	background-color: white;
+
+  max-width: 25cm;
 }
 
 .photo-card {

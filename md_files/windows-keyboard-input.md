@@ -6,6 +6,8 @@ Getting input from the player is the crucial for a game; without it it's not a g
 
 In this article we're going to walk through getting input from the user's keyboard on Windows. We'll also go through how to store it and use it in our game. Let's Go!
 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/tree/main/windows_keyboard_input You can see all the code for this article here 
+
 #HR
 
 ##Contents
@@ -21,6 +23,10 @@ In this article we're going to walk through getting input from the user's keyboa
 ####<a href='#id8'>Mouse Input</a>
 ####<a href='#id9'>Get Cursor Coordinates</a>
 ####<a href='#id10'>Platform Input Struct</a>
+####<a href='#id11'>Creating a character buffer for text input</a>
+####<a href='#id12'>Handling Backspace and Cursor movements based on Key Repeat Rate</a>
+####<a href='#id13'>Using our command buffer in the game loop</a>
+
 
 
 #HR
@@ -46,6 +52,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 When we create our window class we give it this function to send all messages through. Then when we process our messages in our game loop using <i>Peek Message</i>, our function will be called when we call <i>DispatchMessage</i>. <a href="./create_direct_x_11.html">This tutorial walks you through doing this.</a> 
 
 #ANCHOR https://github.com/Olster1/directX11_tutorial/blob/main/lesson1/main.cpp You can see what our basic program would look like using handling OS messages. 
+
+#HR
 
 ##<span id='id1'>WM_KEYDOWN and WM_KEYUP messages</span>
 
@@ -278,7 +286,7 @@ Great! If all our game wanted was whether the key was up or down, say a racing g
 
 #ENDCODE 
 
-#ANCHOR https://github.com/Olster1/windows_tutorials/tree/main/windows_keyboard_input/01%20version%20-%20just%20down%20or%20up You can see the code up to this point.
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/01%20version%20-%20just%20down%20or%20up/main.cpp You can see the code up to this point.
 
 #HR
 
@@ -415,6 +423,8 @@ We're now succesfully handling pressed and released key events!
 
 You'll see we also set the <i>wasPressed</i> and <i>wasReleased</i> state to false at the <b>start of each frame before we process the messages</b>. This is because we only ever want the <i>wasPressed</i> and <i>wasReleased</i> value valid for one frame; if we don't clear the array and rely on a second WM_KEYDOWN message to set the values to false, the <i>wasPressed</i> value will be true for more than one frame (and a lot more) due to the repeat delay Windows and other Operating Systems use. The second message of a key being down won't come straight away but after a short interval.   
 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/02%20version%20-%20down%2C%20pressed%2C%20released/main.cpp You can see the code up to this point. 
+
 #HR
 
 ##<span id='id5'>Multiple Key Presses and Releases Per Frame</span>
@@ -548,6 +558,8 @@ Now in the game code we can use the number of key presses instead of just a bool
 
 We're now successfully handling multiple key press and releases per frame. To finish off key input we'll cover two more quick house keeping things. 
 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/03%20version%20-%20multiple%20key%20presses%20and%20releases%20per%20frame/main.cpp You can see the code up to this point. 
+
 #HR
 
 ##<span id='id6'>Handling WM_SYSKEYDOWN and WM_SYSKEYUP</span>
@@ -589,8 +601,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     if(msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
     message == WM_KEYDOWN || message == WM_KEYUP) {
 
-    	bool keyWasDown = ((l_param & (1 << 30)) == 0);
-    	bool keyIsDown =   !(l_param & (1 << 31));
+    	bool keyWasDown = ((lparam & (1 << 30)) == 0);
+    	bool keyIsDown =   !(lparam & (1 << 31));
 
 		WPARAM vk_code = wparam;    	
 
@@ -630,6 +642,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     return result;
 } 
 #ENDCODE
+
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/04%20version%20-%20using%20lparam%20value%20and%20WM_SYSKEY%20messages/main.cpp You can see the code up to this point. 
 
 #HR
 
@@ -716,6 +731,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
 #ENDCODE
 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/05%20version%20-%20mouse%20input/main.cpp You can see the code up to this point. 
+
 #HR
 
 ##<span id='id9'>Get Cursor Coordinates</span>
@@ -738,11 +755,7 @@ In the game loop we'll put it after our message loop.
 	bool running = true;
 	while(running) {
 
-		//NOTE: Clear the key pressed and released count before processing our messages
-		for(int i = 0; i < PLATFORM_KEY_TOTAL_COUNT; ++i) {
-			global_keyDownStates[i].pressedCount = 0;
-			global_keyDownStates[i].releasedCount = 0;
-		}
+		//... other code here
 
 		MSG message;
 		while(PeekMessage(&message, 0, 0, 0, PM_REMOVE))
@@ -768,7 +781,9 @@ In the game loop we'll put it after our message loop.
 
 #ENDCODE 
 
-GetCursorPos retrieves the mouse location relative to the computer screen with the origin in the bottom left corner. We then use ScreenToClient to map the coordinates to be relative to the bottom left corner of our window.
+GetCursorPos retrieves the mouse location relative to the computer screen with the origin in the top left corner. We then use ScreenToClient to map the coordinates to be relative to the top left corner of our window.
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/ed64686f331050411297dc0d5ca7a34e3b5f8346/windows_keyboard_input/06%20version%20-%20mouse%20position/main.cpp#L178 You can see the code up to this point. 
 
 #HR
 
@@ -786,7 +801,7 @@ struct PlatformInputState {
 	float mouseY;
 	float mouseScrollX;
 	float mouseScrollY;
-}	
+};
 
 static PlatformInputState global_platformInput;
 
@@ -798,9 +813,7 @@ We'll then change our code to use this inputState instead of the seperate global
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	    LRESULT result = 0;
 
-	    if(msg == WM_CLOSE || msg == WM_DESTROY) {
-	    	PostQuitMessage(0);
-	    } else if(msg == WM_LBUTTONDOWN) {
+	    if(msg == WM_LBUTTONDOWN) {
 	    	if(!global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown) {
 	    		global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].pressedCount++;
 	    	}
@@ -831,51 +844,8 @@ We'll then change our code to use this inputState instead of the seperate global
 		    short wheel_delta = HIWORD(wparam);
 		    global_platformInput.mouseScrollX = (float)wheel_delta;
 
-	    } else if(msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
-	    message == WM_KEYDOWN || message == WM_KEYUP) {
-
-	    	//NOTE: Handling our key presses here 
-
-	    	bool keyWasDown = ((l_param & (1 << 30)) == 0);
-	    	bool keyIsDown =   !(l_param & (1 << 31));
-
-			WPARAM vk_code = wparam;    	
-
-			PlatformKeyType keyType = PLATFORM_KEY_NULL; 
-
-	    	//NOTE: match our internal key names to the vk code
-	    	if(vk_code == VK_UP) { 
-	    		keyType = PLATFORM_KEY_UP;
-	    	} else if(vk_code == VK_DOWN) {
-	    		keyType = PLATFORM_KEY_DOWN;
-	    	} else if(vk_code == VK_LEFT) {
-	    		keyType = PLATFORM_KEY_LEFT;
-	    	} else if(vk_code == VK_RIGHT) {
-	    		keyType = PLATFORM_KEY_RIGHT;
-	    	} else if(vk_code == 'Z') {
-	    		keyType = PLATFORM_KEY_Z;
-	    	} else if(vk_code == 'X') {
-	    		keyType = PLATFORM_KEY_X;
-	    	}
-
-
-	    	//NOTE: Key pressed, is down and release events  
-	    	if(keyType != PLATFORM_KEY_NULL) {
-	    		int wasPressed = (keyIsDown && !keyWasDown) ? 1 : 0;
-	    		int wasReleased = (!keyIsDown) ? 1 : 0;
-
-	    		global_platformInput.keyStates[keyType].pressedCount += wasPressed;
-	    		global_platformInput.keyStates[keyType].releasedCount += wasReleased;
-
-	    		global_platformInput.keyStates[keyType].isDown = keyIsDown;
-	    	}
-
-	    } else {
-	    	result = DefWindowProcW(hwnd, msg, wparam, lparam);
-	    }
-
-	    return result;
-	} 	
+	    } 
+	    //rest of our messages ...
 
 #ENDCODE
 
@@ -894,9 +864,11 @@ And our mouse position will use this as well to store it's values.
 
 #ENDCODE 
 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/ed64686f331050411297dc0d5ca7a34e3b5f8346/windows_keyboard_input/07%20version%20-%20using%20platform%20struct/main.cpp#L29 You can see the code up to this point. 
+
 #HR
 
-##Creating a character buffer for text input
+##<span id='id11'>Creating a character buffer for text input</span>
 
 In a game you might want an actual string of characters that a user typed like entering in their profile name or entering commands into the in-game console. For this you want to handle the messages a bit different for three reasons:
 1. So it obeys the keyboard repeat functionality (if you just used the <i>isDown</i> for a key, it would spew out be very hard to control the number of letters coming out because it's just down every frame). 
@@ -924,7 +896,7 @@ struct PlatformInputState {
 	//NOTE: Text Input
 	uint8_t textInput_utf8[PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES];
 	int textInput_bytesUsed;
-}	
+};
 
 static PlatformInputState global_platformInput;
 
@@ -939,39 +911,47 @@ Then in our message loop we'll handle the WM_CHAR message:
 	   if(msg == WM_CHAR) {
 	      uint32_t utf16_character = (uint32_t)wparam;
 
-	      //NOTE: Convert the utf16 character to utf8
+          //NOTE: Don't add backspace to the buffer
+          if(wparam != VK_BACK) {
 
-	      //NOTE: Get the size of the utf8 character in bytes
-	      int bufferSize_inBytes = WideCharToMultiByte(
-	        CP_UTF8,
-	        0,
-	        utf16_character,
-	        1, //NOTE: character not null terminated, so specify it's only one character long
-	        (LPSTR)global_platformInput.textInput_utf8, 
-	        0,
-	        0, 
-	        0
-	      );
+    	      //NOTE: Convert the utf16 character to utf8
 
-	      //NOTE: See if we can still fit the character in our buffer
-	      if((global_platformInput.textInput_bytesUsed + bufferSize_inBytes) <= PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES) {
-	      		
-	      	//NOTE: Add the utf8 value of the character to our buffer
-	      	u32 bytesWritten = WideCharToMultiByte(
-	      	  CP_UTF8,
-	      	  0,
-	      	  utf16_character,
-	      	  -1,
-	      	  (LPSTR)(global_platformInput.textInput_utf8 + global_platformInput.textInput_bytesUsed), 
-	      	  bufferSize_inBytes,
-	      	  0, 
-	      	  0
-	      	);
+    	      //NOTE: Get the size of the utf8 character in bytes
+    	      int bufferSize_inBytes = WideCharToMultiByte(
+    	        CP_UTF8,
+    	        0,
+    	        utf16_character,
+    	        1, //NOTE: character not null terminated, so specify it's only one character long
+    	        (LPSTR)global_platformInput.textInput_utf8, 
+    	        0,
+    	        0, 
+    	        0
+    	      );
 
-	      	//NOTE: Increment the buffer size
-	      	global_platformInput.textInput_bytesUsed += bufferSize_inBytes;
+    	      //NOTE: See if we can still fit the character in our buffer
+    	      if((global_platformInput.textInput_bytesUsed + bufferSize_inBytes) < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES) {
+    	      		
+    	      	//NOTE: Add the utf8 value of the character to our buffer
+    	      	u32 bytesWritten = WideCharToMultiByte(
+    	      	  CP_UTF8,
+    	      	  0,
+    	      	  utf16_character,
+    	      	  1,
+    	      	  (LPSTR)(global_platformInput.textInput_utf8 + global_platformInput.textInput_bytesUsed), 
+    	      	  bufferSize_inBytes,
+    	      	  0, 
+    	      	  0
+    	      	);
 
-	      }
+    	      	//NOTE: Increment the buffer size
+    	      	global_platformInput.textInput_bytesUsed += bufferSize_inBytes;
+
+    	      	//NOTE: Make the string null terminated
+    	      	assert(bufferSize_inBytes < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES);
+    	      	global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed] = '\0';
+
+    	      }
+        }
 	      
 	   } else //... rest of our messages
 
@@ -979,8 +959,269 @@ Then in our message loop we'll handle the WM_CHAR message:
 
 #ENDCODE
 
-We get the character code from the wparam. This is a utf-16 encoded character. Depending on how you'll use this string you'll want to convert it to it's utf-8 equivalent. We use the windows function <i>WideCharToMultiByte</i> to do this for us. We first get the size of the utf-8 character in bytes, then if it fits in our buffer, we'll convert it, putting the result in our buffer.  
+We get the character code from the wparam. This is a utf-16 encoded character. Depending on how you'll use this string you'll probably want to convert it to it's utf-8 equivalent. We use the windows function <i>WideCharToMultiByte</i> to do this for us. We first get the size of the utf-8 character in bytes, then if it fits in our buffer, we'll convert it, putting the result in our buffer. We then increment the size of our buffer and put a null terminating character at the end to make sure anyone using this as a null terminated string will be ok.    
    
+At the start of each frame we'll clear the buffer to empty by setting the size to zero and putting a null terminator character at the start.
+
+#CODE
+	//NOTE: The Game Loop
+	bool running = true;
+	while(running) {
+
+		//NOTE: Clear the input text buffer to empty
+       global_platformInput.textInput_bytesUsed = 0;
+       global_platformInput.textInput_utf8[0] = '\0';
+
+		//NOTE: Clear the key pressed and released count before processing our messages
+		for(int i = 0; i < PLATFORM_KEY_TOTAL_COUNT; ++i) {
+			global_platformInput.keyStates[i].pressedCount = 0;
+			global_platformInput.keyStates[i].releasedCount = 0;
+		}
+
+#ENDCODE
+
+Awesome! We're now gathering character input from the user. We could make a text editor with this, or use it for in game console or player text input. 
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/08%20version%20-%20handling%20text%20input/main.cpp You can see the code up to this point. 
+
+#HR
+
+##<span id='id12'>Handling Backspace and Cursor movements based on Key Repeat rate</span> 
+
+The last thing to finish off is to gather keys if the user is trying to edit the text input string. If the user wants to move the cursor with the arrow keys, we want them to follow the same keyboard repeat rate as the text input. To do this we want to to handle them seperately from our main keyboard input. We'll create a buffer of keyboard movements, along with the backspace key for the program to process on it's own.  We'll add a new Key enum for backspace.
+
+#CODE
+	
+enum PlatformKeyType {
+	PLATFORM_KEY_NULL,
+	PLATFORM_KEY_UP,
+	PLATFORM_KEY_DOWN,
+	PLATFORM_KEY_LEFT,
+	PLATFORM_KEY_RIGHT,
+	PLATFORM_KEY_Z,
+	PLATFORM_KEY_X,
+
+	PLATFORM_KEY_BACKSPACE,
+
+	PLATFORM_MOUSE_LEFT_BUTTON,
+	PLATFORM_MOUSE_RIGHT_BUTTON,
+
+	//NOTE: Everthing before here
+	PLATFORM_KEY_TOTAL_COUNT
+};
+
+#ENDCODE 
+
+In our platform input struct we'll create a buffer for text input commands.
+
+#CODE
+#define PLATFORM_MAX_KEY_INPUT_BUFFER 16
+
+struct PlatformInputState {
+
+	PlatformKeyState keyStates[PLATFORM_KEY_TOTAL_COUNT]; 
+
+
+	//NOTE: Mouse data
+	float mouseX;
+	float mouseY;
+	float mouseScrollX;
+	float mouseScrollY;
+
+
+	//NOTE: Text Input
+	uint8_t textInput_utf8[PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES];
+	int textInput_bytesUsed;
+
+	PlatformKeyType keyInputCommandBuffer[PLATFORM_MAX_KEY_INPUT_BUFFER];
+	int keyInputCommand_count;
+
+};
+#ENDCODE
+
+On a WM_KEYDOWN message we'll add a command to the buffer if it is an arrow key or a backspace key. 
+	
+#CODE
+//... other messages handled above
+ else if(msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
+	    message == WM_KEYDOWN || message == WM_KEYUP) {
+
+	    	//NOTE: Handling our key presses here 
+
+	    	bool keyWasDown = ((lparam & (1 << 30)) == 0);
+	    	bool keyIsDown =   !(lparam & (1 << 31));
+
+			WPARAM vk_code = wparam;    	
+
+			PlatformKeyType keyType = PLATFORM_KEY_NULL; 
+			bool addToCommandBuffer = false;
+
+	    	//NOTE: match our internal key names to the vk code
+	    	if(vk_code == VK_UP) { 
+	    		keyType = PLATFORM_KEY_UP;
+	    	} else if(vk_code == VK_DOWN) {
+	    		keyType = PLATFORM_KEY_DOWN;
+	    	} else if(vk_code == VK_LEFT) {
+	    		keyType = PLATFORM_KEY_LEFT;
+
+	    		//NOTE: Also add the message to our command buffer if it was a KEYDOWN message
+	    		addToCommandBuffer = keyIsDown;
+	    	} else if(vk_code == VK_RIGHT) {
+	    		keyType = PLATFORM_KEY_RIGHT;
+
+	    		//NOTE: Also add the message to our command buffer if it was a KEYDOWN message
+	    		addToCommandBuffer = keyIsDown;
+	    	} else if(vk_code == 'Z') {
+	    		keyType = PLATFORM_KEY_Z;
+	    	} else if(vk_code == 'X') {
+	    		keyType = PLATFORM_KEY_X;
+	    	} else if(vk_code == VK_BACK) {
+	    		keyType = PLATFORM_KEY_BACKSPACE;
+
+	    		//NOTE: Also add the message to our command buffer if it was a KEYDOWN message
+	    		addToCommandBuffer = keyIsDown;
+	    	}
+
+	    	//NOTE: Add the command message here 
+	    	if(addToCommandBuffer && global_platformInput.keyInputCommand_count < PLATFORM_MAX_KEY_INPUT_BUFFER) {
+	    		global_platformInput.keyInputCommandBuffer[global_platformInput.keyInputCommand_count++] = keyType;
+	    	}
+
+
+	    	//Process our key presses, released and down messages as normal 
+	    	//...
+
+#ENDCODE
+
+We'll make sure we clear our command buffer at the start of each frame.
+
+#CODE
+	//NOTE: The Game Loop
+	bool running = true;
+	while(running) {
+
+		//NOTE: Clear our input command buffer
+		global_platformInput.keyInputCommand_count = 0;
+
+	   //... other clear input code
+
+#ENDCODE
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/ed64686f331050411297dc0d5ca7a34e3b5f8346/windows_keyboard_input/09%20version%20-%20collecting%20backspace%20and%20cursor%20movement/main.cpp#L166 You can see the code up to this point. 
+
+#HR
+
+##<span id='id13'>Using our command buffer in the game loop</span>
+
+Now that we've gathered our command inputs for the frame we can process them to edit a text buffer with a cursor position. It might look something like this:
+
+#CODE
+		
+	//NOTE: Create a input buffer to store text input across frames.
+	#define MAX_INPUT_BUFFER_SIZE 4096
+	int textBuffer_count = 0;
+	uint8_t textBuffer[MAX_INPUT_BUFFER_SIZE] = {};
+
+	//NOTE: Where our cursor position is
+	int cursorAt = 0;
+
+	bool running = true;
+	while(running) {
+
+		//... other code here
+
+		//...our message loop here
+
+		//NOTE: Find the smallest size we can add to the buffer without overflowing it
+        int bytesToMoveAboveCursor = global_platformInput.textInput_bytesUsed;
+        int spaceLeftInBuffer = (MAX_INPUT_BUFFER_SIZE - textBuffer_count - 1); //minus one to put a null terminating character in
+        if(bytesToMoveAboveCursor > spaceLeftInBuffer) {
+            bytesToMoveAboveCursor = spaceLeftInBuffer;
+        }
+
+        //NOTE: Get all characters above cursor and save them in a buffer
+        char tempBuffer[MAX_INPUT_BUFFER_SIZE] = {};
+        int tempBufferCount = 0;
+        for(int i = cursorAt; i < textBuffer_count; i++) {
+            tempBuffer[tempBufferCount++] = textBuffer[i];
+        }
+
+        //NOTE: Copy new string into the buffer
+        for(int i = 0; i < bytesToMoveAboveCursor; ++i) {
+            textBuffer[cursorAt + i] = global_platformInput.textInput_utf8[i];
+        }
+        
+        //NOTE: Advance the cursor and the buffer count
+        textBuffer_count += bytesToMoveAboveCursor;
+        cursorAt += bytesToMoveAboveCursor;
+
+        //NOTE: Replace characters above the cursor that we would have written over
+        for(int i = 0; i < tempBufferCount; ++i) {
+            textBuffer[cursorAt + i] = tempBuffer[i]; 
+        }
+
+
+        //NOTE: Process our command buffer
+        for(int i = 0; i < global_platformInput.keyInputCommand_count; ++i) {
+            PlatformKeyType command = global_platformInput.keyInputCommandBuffer[i];
+            if(command == PLATFORM_KEY_BACKSPACE) {
+                
+                //NOTE: can't backspace a character if cursor is in front of text
+                if(cursorAt > 0 && textBuffer_count > 0) {
+                    //NOTE: Move all characters in front of cursor down
+                    int charactersToMoveCount = textBuffer_count - cursorAt;
+                    for(int i = 0; i < charactersToMoveCount; ++i) {
+                        int indexInFront = cursorAt + i;
+                        assert(indexInFront < textBuffer_count); //make sure not buffer overflow
+                        textBuffer[cursorAt + i - 1] = textBuffer[indexInFront]; //get the one in front 
+                    }
+
+                    cursorAt--;
+                    textBuffer_count--;
+                }
+                
+            }
+
+            if(command == PLATFORM_KEY_LEFT) {
+                //NOTE: Move cursor left 
+                if(cursorAt > 0) {
+                    cursorAt--;
+                }
+            }
+
+            if(command == PLATFORM_KEY_RIGHT) {
+                //NOTE: Move cursor right 
+                if(cursorAt < textBuffer_count) {
+                    cursorAt++;
+                }
+            }       
+        }  
+
+        //NOTE: put in a null terminating character at the end
+        assert(textBuffer_count < MAX_INPUT_BUFFER_SIZE);
+        textBuffer[textBuffer_count] = '\0';  
+
+#ENDCODE 
+
+Phew! We did it. There's quite a bit of code but hopefully it makes sense. 
+
+The first bit is splicing in our new string into our input buffer. We make sure we don't override any characters in the buffer after the cursor so we make a copy of it. We then copy our new string into the buffer starting at the cursor location. Next we copy back in the characters we saved.
+
+After we've spiced our string into the buffer, we process our command buffer, moving the cursor left or right, and if it's a backspace, moving all the characters up by one character. 
+
+Since we're treating all characters as 1 byte length, this isn't immediately unicode compatible, but with not much work you can change that.  
+
+As an exercise you could pull this code into a input buffer <i>module</i> to reuse in your projects and make the buffer expand if it gets full - right now the buffer is fixed size. 
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/cd1df6abd5153641e1382eb31724ac2be6a39b49/windows_keyboard_input/10%20version%20-%20splicing%20text%20into%20a%20buffer/main.cpp#L288-L363 You can see the code up to this point. 
+
+#HR
+    
+##Conclusion
+
+That's it! We're done. We covered Keyboard Input, Mouse Input, Mouse cursor position and Text Input. This is everything you need to make a professional PC game. I hope you enjoyed this lesson and helps you on your programming journey. 
+
+#HR
 
 ##NOTES
 
