@@ -312,7 +312,8 @@ static void writeCodeBlock(FileState *state) {
 }
 
 static void writeWhiteSpaceTab(FileState *state) {
-	writeText(state, "&emsp;&emsp;&emsp;&emsp;");
+	writeText(state, "<span style='padding: 0.5cm;'></span>"); 
+	// writeText(state, "&emsp;&emsp;&emsp;&emsp;");
 }
 
 static void writeEndCodeBlock(FileState *state) {

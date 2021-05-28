@@ -23,9 +23,10 @@ In this article we're going to walk through getting input from the user's keyboa
 ####<a href='#id8'>Mouse Input</a>
 ####<a href='#id9'>Get Cursor Coordinates</a>
 ####<a href='#id10'>Platform Input Struct</a>
-####<a href='#id11'>Creating a character buffer for text input</a>
-####<a href='#id12'>Handling Backspace and Cursor movements based on Key Repeat Rate</a>
+####<a href='#id11'>Collecting ASCI text input</a>
+####<a href='#id12'>Handling Backspace and Arrow keys based on Key Repeat Rate</a>
 ####<a href='#id13'>Using our command buffer in the game loop</a>
+####<a href='#id14'>Handling Utf-16 Unicode Text Input</a>
 
 
 
@@ -875,9 +876,9 @@ In a game you might want an actual string of characters that a user typed like e
 2. To handle unicode characters - virtual key codes don't contain unicode 
 3. For the OS to handle Upper case and Lower case for us
 
-To do this we use the WM_CHAR message. Each time we get this message we add the character to a buffer for that frame. 
+To do this we use the WM_CHAR message. Each time we get this message we want to do soemthing to use these characters in our game code.
 
-We'll store the buffer in our PlatformInputState.
+We'll store the characters that come in each frame into a buffer stored in our PlatformInputState.
 
 #CODE 
 
@@ -902,55 +903,26 @@ static PlatformInputState global_platformInput;
 
 #ENDCODE
 
-Then in our message loop we'll handle the WM_CHAR message:
+Then in our message loop we'll handle the WM_CHAR message.
 
 #CODE
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	    LRESULT result = 0;
 
 	   if(msg == WM_CHAR) {
-	      uint32_t utf16_character = (uint32_t)wparam;
+	     //NOTE: Asci characters have a one to one mapping from the utf-16 so we can just cast the value to get the asci character.
+        uint8_t asci_character = (uint8_t)wparam;
 
-          //NOTE: Don't add backspace to the buffer
-          if(wparam != VK_BACK) {
+        // //NOTE: See if we can still fit the character in our buffer. We don't do <= to the max buffer size since we want to keep one character to create a null terminated string.
+        if((global_platformInput.textInput_bytesUsed + 1) < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES) {
+            
+            //NOTE: Add the character to the buffer
+            global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed++] = asci_character; 
 
-    	      //NOTE: Convert the utf16 character to utf8
-
-    	      //NOTE: Get the size of the utf8 character in bytes
-    	      int bufferSize_inBytes = WideCharToMultiByte(
-    	        CP_UTF8,
-    	        0,
-    	        utf16_character,
-    	        1, //NOTE: character not null terminated, so specify it's only one character long
-    	        (LPSTR)global_platformInput.textInput_utf8, 
-    	        0,
-    	        0, 
-    	        0
-    	      );
-
-    	      //NOTE: See if we can still fit the character in our buffer
-    	      if((global_platformInput.textInput_bytesUsed + bufferSize_inBytes) < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES) {
-    	      		
-    	      	//NOTE: Add the utf8 value of the character to our buffer
-    	      	u32 bytesWritten = WideCharToMultiByte(
-    	      	  CP_UTF8,
-    	      	  0,
-    	      	  utf16_character,
-    	      	  1,
-    	      	  (LPSTR)(global_platformInput.textInput_utf8 + global_platformInput.textInput_bytesUsed), 
-    	      	  bufferSize_inBytes,
-    	      	  0, 
-    	      	  0
-    	      	);
-
-    	      	//NOTE: Increment the buffer size
-    	      	global_platformInput.textInput_bytesUsed += bufferSize_inBytes;
-
-    	      	//NOTE: Make the string null terminated
-    	      	assert(bufferSize_inBytes < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES);
-    	      	global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed] = '\0';
-
-    	      }
+            //NOTE: Make the string null terminated
+            assert(global_platformInput.textInput_bytesUsed < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES);
+            global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed] = '\0';
+                }
         }
 	      
 	   } else //... rest of our messages
@@ -959,7 +931,7 @@ Then in our message loop we'll handle the WM_CHAR message:
 
 #ENDCODE
 
-We get the character code from the wparam. This is a utf-16 encoded character. Depending on how you'll use this string you'll probably want to convert it to it's utf-8 equivalent. We use the windows function <i>WideCharToMultiByte</i> to do this for us. We first get the size of the utf-8 character in bytes, then if it fits in our buffer, we'll convert it, putting the result in our buffer. We then increment the size of our buffer and put a null terminating character at the end to make sure anyone using this as a null terminated string will be ok.    
+We get the character code from the wparam. This is a utf-16 encoded character. We are going to handle just asci characters so we don't need to do anything special to decode them - we can literally just cast them as a 1 byte character. Later we do handle unicode characters but for now just asci. We then see if the character fits in our buffer for this frame. If so, we increment the size of our buffer and put a null terminating character at the end to make sure anyone using this as a null terminated string will be ok.    
    
 At the start of each frame we'll clear the buffer to empty by setting the size to zero and putting a null terminator character at the start.
 
@@ -982,7 +954,7 @@ At the start of each frame we'll clear the buffer to empty by setting the size t
 
 Awesome! We're now gathering character input from the user. We could make a text editor with this, or use it for in game console or player text input. 
 
-#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/08%20version%20-%20handling%20text%20input/main.cpp You can see the code up to this point. 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/08%20version%20-%20handling%20text%20input%20asci/main.cpp#L57-L70 You can see the code up to this point. 
 
 #HR
 
@@ -1107,7 +1079,7 @@ We'll make sure we clear our command buffer at the start of each frame.
 
 #ENDCODE
 
-#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/ed64686f331050411297dc0d5ca7a34e3b5f8346/windows_keyboard_input/09%20version%20-%20collecting%20backspace%20and%20cursor%20movement/main.cpp#L166 You can see the code up to this point. 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/09%20version%20-%20collecting%20backspace%20and%20cursor%20movement/main.cpp#L144-L152 You can see the code up to this point. 
 
 #HR
 
@@ -1209,14 +1181,136 @@ The first bit is splicing in our new string into our input buffer. We make sure 
 
 After we've spliced our string into the buffer, we process our command buffer, moving the cursor left or right, and if it's a backspace, moving all the characters up by one character. 
 
-Since we're treating all characters as 1 byte length, this isn't immediately unicode compatible, but with not much work you can change that.  
+Since we're treating all characters as 1 byte length, this isn't unicode compatible since characters bigger than the asci character set will be bigger than 1 byte. Instead, you'd want to move the cursor and backspace a variable number of bytes based on how big the utf-8 character is - ranging from 1 byte for asci to 4 bytes for emojis.     
 
-As an exercise you could pull this code into a input buffer <i>module</i> to reuse in your projects and make the buffer expand if it gets full - right now the buffer is fixed size. 
+As an exercise you could pull this code into general input buffer to reuse in your projects. You could also make the buffer expand if it gets full - right now the buffer is fixed size. 
 
-#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/cd1df6abd5153641e1382eb31724ac2be6a39b49/windows_keyboard_input/10%20version%20-%20splicing%20text%20into%20a%20buffer/main.cpp#L288-L363 You can see the code up to this point. 
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/10%20version%20-%20splicing%20text%20into%20a%20buffer/main.cpp#L264-L331 You can see the code up to this point. 
 
 #HR
+
+##<span id='id14'>Handling Unicode characters</span>
+
+To handle unicode characters coming in on the WM_CHAR messags, we have to do a little bit more work. For our game loop we're assuming we're going to use utf-8 encoded strings - <b>so our goal is to convert utf-16 characters coming in from Windows to utf-8.</b>  
+
+First we need to get the utf-16 characters. A quick side tour into utf-16 encoding. Utf-16 is another encoding scheme to reduce the size of strings. The 16 part is the minimum size that's needed to represent a unicode point - in this case 16 bits. However just 16bits is not enough to cover all unicode characters. To do so you need two 16bit characters that when decoded together you can get the unicode character. These are called surrogate pairs. So a unicode point in utf-16 is either represented as one 16 bit number or two. Emojis for example are need the surrogate pair to represent it. 
+
+Since each WM_CHAR message only contains a single 16bit character per message, depending on what unicode value it is, we need to know whether this is part of a surrogate pair or just a single 16bit character. If it is part of a pair, the next character is assumed to come in as the next WM_CHAR message. If it is a pair, the first 16bit number is called the <b>Low Surrogate</b> and the second 16 bit character is the <b>High Surrogate</b>. Windows gives us helper macros to find this out for us: <b>IS_LOW_SURROGATE(), IS_HIGH_SURROGATE() and IS_SURROGATE_PAIR()</b>. If it is a low surrogate we need to store it until the next WM_CHAR message. We're going to put it in the PlatformInputState.  
+
+Once we get two 16 bit characters that are a surrogate pair or a 16bit character that's not part of a pair, we're then going to add these to our input buffer. First we'll want to convert them to utf-8 encoding.  We use the windows function <i>WideCharToMultiByte</i> to do this for us. We first get the size of the utf-8 codepoint in bytes, then if it fits in our buffer, we'll convert it, putting the result in our buffer using the same function - <i>WideCharToMultiByte</i> - this time passing in the size. We then increment the size of our buffer and put a null terminating character at the end to make sure anyone using this as a null terminated string will be ok. 
+
+<i>WideCharToMultiByte</i> takes an array of wide characters - 16bit each. So to convert a surrogate pair, we make an array of 2 WCHAR (16bits) and put the low surrogate in first, than the high surrogate in second. For the codepoint represented by just the single 16bit char, we just put it in index zero and sepcify the size of the array in the WideCharToMultiByte function.
     
+#CODE
+
+if(msg == WM_CHAR) {
+        
+        //NOTE: Dont add backspace to the buffer
+        if(wparam != VK_BACK) {
+
+            WCHAR utf16_character = (WCHAR)wparam;
+
+            int characterCount = 0;
+            WCHAR characters[2];
+
+
+            //NOTE: Build the utf-16 string
+            if (IS_LOW_SURROGATE(utf16_character))
+            {
+                if (global_platformInput.low_surrogate != 0)
+                {
+                    // received two low surrogates in a row, just ignore the first one
+                }
+                global_platformInput.low_surrogate = utf16_character;
+            }
+            else if (IS_HIGH_SURROGATE(utf16_character))
+            {
+                if (global_platformInput.low_surrogate == 0)
+                {
+                    // received hight surrogate without low one first, just ignore it
+                    
+                }
+                else if (!IS_SURROGATE_PAIR(utf16_character, global_platformInput.low_surrogate))
+                {
+                    // invalid surrogate pair, ignore the two pairs
+                    global_platformInput.low_surrogate = 0;
+                } 
+                else 
+                {
+                    //NOTE: We got a surrogate pair. The string we convert to utf8 will be 2 characters long - 32bits not 16bits
+                    characterCount = 2;
+                    characters[0] = global_platformInput.low_surrogate;
+                    characters[1] = utf16_character;
+
+                }
+            }
+            else
+            {
+                if (global_platformInput.low_surrogate != 0)
+                {
+                    // expected high surrogate after low one, but received normal char
+                    // accept normal char message (ignore low surrogate)
+                }
+
+                //NOTE: always add non-pair characters. The string will be one character long - 16bits
+                characterCount = 1;
+                characters[0] = utf16_character;
+
+                global_platformInput.low_surrogate = 0;
+            }
+
+            if(characterCount > 0) {
+            
+                //NOTE: Convert the utf16 character to utf8
+
+                //NOTE: Get the size of the utf8 character in bytes
+                int bufferSize_inBytes = WideCharToMultiByte(
+                  CP_UTF8,
+                  0,
+                  (LPCWCH)characters,
+                  characterCount,
+                  (LPSTR)global_platformInput.textInput_utf8, 
+                  0,
+                  0, 
+                  0
+                );
+
+                //NOTE: See if we can still fit the character in our buffer. We don't do <= to the max buffer size since we want to keep one character to create a null terminated string.
+                if((global_platformInput.textInput_bytesUsed + bufferSize_inBytes) < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES) {
+                        
+                    //NOTE: Add the utf8 value of the codepoint to our buffer
+                    int bytesWritten = WideCharToMultiByte(
+                      CP_UTF8,
+                      0,
+                      (LPCWCH)characters,
+                      characterCount,
+                      (LPSTR)(global_platformInput.textInput_utf8 + global_platformInput.textInput_bytesUsed), 
+                      bufferSize_inBytes,
+                      0, 
+                      0
+                    );
+
+                    //NOTE: Increment the buffer size
+                    global_platformInput.textInput_bytesUsed += bufferSize_inBytes;
+
+                    //NOTE: Make the string null terminated
+                    assert(bufferSize_inBytes < PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES);
+                    global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed] = '\0';
+                }
+
+                global_platformInput.low_surrogate = 0;
+            }
+        }
+
+#ENDCODE
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/11%20version%20-%20handling%20text%20input%20unicode/main.cpp#L71-L162 You can see the code up to this point. 
+
+
+Ah! Made it! We are now accepting all unicode text coming in from the OS. As mentioned before to navigate between the glyphs in a text editor and delete them, you'll have to know how big each codepoint is in utf-8 encoding. I'll leave this as an exercise to the reader. 
+
+#HR
+
 ##Conclusion
 
 That's it! We're done. We covered Keyboard Input, Mouse Input, Mouse cursor position and Text Input. This is everything you need to make a professional PC game. I hope you enjoyed this lesson and helps you on your programming journey. 
