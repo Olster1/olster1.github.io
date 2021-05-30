@@ -47,7 +47,12 @@ if(!RegisterClassExW(&winClass)) {
 
 We declare a struct call winClass of type WINDCLASSEXW. Notice we’re using the W versions of the WinAPI functions. There is also the A type. The difference is that the W type support Unicode strings (W meaning wide characters or 2 bytes per character), whereas the A type only support ANSI characters (non unicode, with only 1 byte per character). So to be more up to date we’re using the W functions. There are two other things we’ll add to support unicode:
 
-1. Put the define unicode at the top of our file. This tells other windows functions we’re supporting unicode so please help us.
+1. Put the define unicode at the top of our file (above #include windows.h). This tells other windows functions we’re supporting unicode so please help us.
+
+#CODE
+#define UNICODE
+#include <windows.h>
+#ENDCODE
 
 2. Put L before a string literal. This tells the compiler to treat the string as a wide string (2 bytes per character). This looks like this L”MyWindowClass”.
 
@@ -59,12 +64,8 @@ This is the callback that handles events sent to our app like resizing, keyboard
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     LRESULT result = 0;
     switch(msg) {
-        case WM_KEYDOWN: {
-            if(wparam == VK_ESCAPE)
-                PostQuitMessage(0);
-            break;
-        }
-        case WM_DESTROY: {
+        case WM_CLOSE:
+        case WM_DESTROY : {
             PostQuitMessage(0);
         } break;
         default:
@@ -73,7 +74,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     return result;
 }
 #ENDCODE
-You’ll see that we’re handling the WM_KEYDOWN event in which we check if the key is escape. If so we destroy our window. We also handle the WM_DESTROY event, which we post a QuitMessage which we’ll handle in our message loop. All other events we give to the default function.
+
+You’ll see that we’re handling the WM_CLOSE and WM_DESTROY messages sent when the user closes the window. We post a QuitMessage which we’ll handle in our message loop telling the program to exit. All other events we give to the default function for now.
 Next we’ll actually create our window.
 <img src='./photos/directX_lesson1_pictures/directx01.png' style='width: 50vw;'>
 #CODE

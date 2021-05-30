@@ -360,8 +360,8 @@ static void eatWhiteSpace_justSpaces(u8 **at_) {
 int main(int argc, char **args) {
 	if(argc >= 3) {
 
-		char *exts[] = { "md" };
-		FileNameOfType filesToConvert = getDirectoryFilesOfType(args[1], exts, 1);
+		char *exts[] = { "md", "mu" };
+		FileNameOfType filesToConvert = getDirectoryFilesOfType(args[1], exts, 2);
 		printf("%s\n", args[1]);
 		for(int fileIndex = 0; fileIndex < filesToConvert.count; ++fileIndex) {
 
@@ -500,80 +500,79 @@ int main(int argc, char **args) {
 											}
 										}
 
+										if(!isString) {
 										if(tempAt[0] == '(' || tempAt[0] == ')' || tempAt[1] == '(' || tempAt[1] == ')' || *tempAt == ' ' || *tempAt == '\n' || *tempAt == '\r' || (*tempAt == '\"' && !isString)) {
 											
 											
-											if(!isString) {
-												if(*tempAt == '(') {
-													color = COLOR_BRACKET;
-													writeColor(&state, color);
-												} else if(tempAt[1] == '(') {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(*tempAt == ')') {
-													color = COLOR_BRACKET;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("else", lastWord, 4) && wordLength == 5) {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("enum", lastWord, 4) && wordLength == 5) {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("static", lastWord, 6) && wordLength == 7) {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("const", lastWord, 5) && wordLength == 6) {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("bool", lastWord, 4) && wordLength == 5) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("true", lastWord, 4) && wordLength == 5) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("unsigned", lastWord, 8) && wordLength == 9) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("false", lastWord, 4) && wordLength == 5) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
-													color = COLOR_PREPROCESSOR;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("#if", lastWord, 3) && wordLength == 4) {
-													color = COLOR_PREPROCESSOR;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("#define", lastWord, 7) && wordLength == 8) {
-													color = COLOR_PREPROCESSOR;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("struct", lastWord, 6) && wordLength == 7) {
-													color = COLOR_KEYWORD;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("#endif", lastWord, 6) && wordLength == 7) {
-													color = COLOR_PREPROCESSOR;
-													writeColor(&state, color);
-												} else if(stringsMatchNullN("#ifdef", lastWord, 6) && wordLength == 7) {
-													color = COLOR_PREPROCESSOR;
-													writeColor(&state, color);
-												} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
-													color = COLOR_VARIABLE;
-													writeColor(&state, color);
-												}
+											if(*tempAt == '(') {
+												color = COLOR_BRACKET;
+												writeColor(&state, color);
+											} else if(tempAt[1] == '(') {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(*tempAt == ')') {
+												color = COLOR_BRACKET;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("int", lastWord, 3) && wordLength == 4) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("else", lastWord, 4) && wordLength == 5) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("enum", lastWord, 4) && wordLength == 5) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("static", lastWord, 6) && wordLength == 7) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("const", lastWord, 5) && wordLength == 6) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("float", lastWord, 5) && wordLength == 6) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("char", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("return", lastWord, 6) && wordLength == 7) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("u32", lastWord, 3) && wordLength == 4) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("bool", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("true", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("unsigned", lastWord, 8) && wordLength == 9) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("false", lastWord, 4) && wordLength == 5) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#include", lastWord, 8) && wordLength == 9) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#if", lastWord, 3) && wordLength == 4) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#define", lastWord, 7) && wordLength == 8) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("struct", lastWord, 6) && wordLength == 7) {
+												color = COLOR_KEYWORD;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#endif", lastWord, 6) && wordLength == 7) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("#ifdef", lastWord, 6) && wordLength == 7) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if((lastWord[0] >= '0' && lastWord[0] <= '9') || lastWord[0] == '-' && (lastWord[1] >= '0' && lastWord[1] <= '9')) {
+												color = COLOR_VARIABLE;
+												writeColor(&state, color);
 											}
 
 
@@ -586,6 +585,7 @@ int main(int argc, char **args) {
 												color = COLOR_NULL;
 											}
 										} 
+										}
 
 
 										if(*tempAt == '\n' || *tempAt == '\r') {
