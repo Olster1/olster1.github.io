@@ -7,7 +7,7 @@
 #HR
 ###<b>Game Engine Development</b>
 ####Direct 3d
-<a href="./create_direct_x_11.html">Simple Direct3d: Part 1</a>
+<a href="./direct3d_11_part1.html">Simple Direct3d: Part 1 - Create a Window</a>
 <a href="./create_direct_x_11_part2.html">Simple Direct3d: Part 2</a>
 <a href="./create_direct_x_11_part3.html">Simple Direct3d: Part 3</a>
 #HR
