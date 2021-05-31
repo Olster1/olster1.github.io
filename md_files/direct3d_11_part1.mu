@@ -120,7 +120,7 @@ LONG initialHeight = 540;
 
 HWND hwnd = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW,
                                 winClass.lpszClassName,
-                                L"My Window",
+                                L"Awesome Program Name!",
                                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                 initialWidth, 
@@ -158,7 +158,7 @@ LONG initialHeight = initialRect.bottom - initialRect.top;
 
 HWND hwnd = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW,
                                 winClass.lpszClassName,
-                                L"My Window",
+                                L"Awesome Program Name!",
                                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                 initialWidth, 
@@ -171,6 +171,7 @@ if(!hwnd) {
 
 #ENDCODE
 
+We again display a message box to the user if we can't create the window and exit our program. 
 
 Great! If we compile this now we should see a window briefly appear then disappear again. Let’s do that.
 
@@ -232,7 +233,106 @@ Now if we compile it using the same code as above <a href='#compiler-bat'>(cl ma
 
 Awesome! Well done. We’re on our way to getting a direct3d renderer going.
 
-#ANCHOR_IMPORTANT https://github.com/Olster1/directX11_tutorial/blob/main/lesson1/main.cpp You can see all the code for this lesson here
+The full code up to this point should look like this: 
+
+#CODE
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#define UNICODE
+#include <windows.h>
+    
+//NOTE: Our Message Callback 
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+    LRESULT result = 0;
+    switch(msg) {
+        //NOTE: Handle when the user quits the window
+        case WM_DESTROY:
+        case WM_CLOSE: {
+            PostQuitMessage(0);
+        } break;
+        default:
+            result = DefWindowProcW(hwnd, msg, wparam, lparam);
+    }
+    return result;
+}
+
+//NOTE: Entry point of our program 
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
+{
+    // Open a window
+    HWND hwnd;
+    {   
+        //NOTE: First register the type of window we are going to create
+        WNDCLASSEXW winClass = {};
+        winClass.cbSize = sizeof(WNDCLASSEXW);
+        winClass.style = 0;
+        winClass.lpfnWndProc = &WndProc;
+        winClass.hInstance = hInstance;
+        winClass.hIcon = LoadIconW(0, IDI_APPLICATION);
+        winClass.hCursor = LoadCursorW(0, IDC_ARROW);
+        winClass.lpszClassName = L"MyWindowClass";
+        winClass.hIconSm = LoadIconW(0, IDI_APPLICATION);
+
+        //NOTE: Register the window class and display Error if we can't
+        if(!RegisterClassExW(&winClass)) {
+            MessageBoxA(0, "RegisterClassEx failed", "Fatal Error", MB_OK);
+            return GetLastError();
+        }
+
+        //Now create the actual window
+
+        //NOTE: First get the dimensions for the window based on our desired innner window dimension
+        RECT initialRect = { 0, 0, 960, 540 };
+        AdjustWindowRectEx(&initialRect, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_OVERLAPPEDWINDOW);
+        LONG initialWidth = initialRect.right - initialRect.left;
+        LONG initialHeight = initialRect.bottom - initialRect.top;
+
+
+        //NOTE: Create the Window
+        hwnd = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW,
+                                winClass.lpszClassName,
+                                L"Awesome Program Name!",
+                                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                                CW_USEDEFAULT, CW_USEDEFAULT,
+                                initialWidth, 
+                                initialHeight,
+                                0, 0, hInstance, 0);
+
+        //NOTE: If we couldn't make the window display an error and exit
+        if(!hwnd) {
+            MessageBoxA(0, "CreateWindowEx failed", "Fatal Error", MB_OK);
+            return GetLastError();
+        }
+    }
+
+    //NOTE: Our Per Frame Game Loop
+    bool running = true;
+    while(running) {
+        //NOTE: Process our message queue
+        MSG msg = {};
+        while(PeekMessageW(&msg, 0, 0, 0, PM_REMOVE))
+        {
+            //NOTE: Exit our game loop if we see a WM_QUIT message
+            if(msg.message == WM_QUIT)
+                running = false;
+
+            TranslateMessage(&msg);
+
+            //NOTE: Deliver our message to our message callback
+            DispatchMessageW(&msg);
+        }
+    }
+    
+
+    return 0;
+
+}
+
+#ENDCODE
+
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/directX11_tutorial/blob/main/lesson1/main.cpp You can see all the code for this lesson on Github here
 
 #HR
 
@@ -254,6 +354,6 @@ Awesome! Well done. We’re on our way to getting a direct3d renderer going.
 
 In the next lesson we'll actually start using Direct3D to clear the screen to a color. 
 
-#ANCHOR_IMPORTANT ./direct3d_11_part2.html Go to Part 2 of the Direct3D lessons
+#INTERNAL_ANCHOR_IMPORTANT ./direct3d_11_part2.html Go to Part 2 of the Direct3D lessons
 
 

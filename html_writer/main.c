@@ -135,7 +135,7 @@ static void writeNavBar(FileState *state) {
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
 	      <ul class=\"nav navbar-nav navbar-right\"  style=\"margin-top: 25px;\">\
-	        <li><a href=\"./index.html\">Direct X</a></li>\
+	        <li><a href=\"./index.html\">Articles</a></li>\
 	      	<li><a href=\"./index.html\">Games</a></li>\
 	      	<li><a href=\"./about.html\">About</a></li>\
 	      </ul>\
@@ -213,13 +213,17 @@ static u32 writeText_returnSize_encoded(FileState *state, char *text, u32 sizeIn
 	return sizeInBytes;
 }
 
-static void writeAnchorTag(FileState *state, u8 **at_, bool addButton) {
+static void writeAnchorTag(FileState *state, u8 **at_, bool addButton, bool isInternal) {
 	u8 *at = *at_;
 
-	{
+	if(!isInternal) {
 		char *str = "<a target='_blank' href='";
 		addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
+	} else {
+		char *str = "<a href='";
+		addElementInifinteAllocWithCount_(&state->contentsToWrite, str, easyString_getSizeInBytes_utf8(str));	
 	}
+
 
 	//move pass space
 	if(at[0] == ' ') {
@@ -241,6 +245,11 @@ static void writeAnchorTag(FileState *state, u8 **at_, bool addButton) {
 
 	if(addButton) {
 		char *str = "<div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'>";
+		if(isInternal) {
+			//change the color
+			str = "<div style='background-color: #ccff66; border-radius: 0.5cm; padding: 0.5cm;'>";
+		}
+		
 		writeText_(state, str, easyString_getSizeInBytes_utf8(str));
 	}
 
@@ -543,6 +552,12 @@ int main(int argc, char **args) {
 											} else if(stringsMatchNullN("bool", lastWord, 4) && wordLength == 5) {
 												color = COLOR_VARIABLE;
 												writeColor(&state, color);
+											} else if(stringsMatchNullN("cl", lastWord, 2) && wordLength == 3) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
+											} else if(stringsMatchNullN("/link", lastWord, 5) && wordLength == 6) {
+												color = COLOR_PREPROCESSOR;
+												writeColor(&state, color);
 											} else if(stringsMatchNullN("true", lastWord, 4) && wordLength == 5) {
 												color = COLOR_VARIABLE;
 												writeColor(&state, color);
@@ -667,18 +682,71 @@ int main(int argc, char **args) {
 				} else if(stringsMatchNullN("#ANCHOR_IMPORTANT", at, 17)) { //NOTE(ollie): <a> tag with green background
 					at += 17;
 
-					writeAnchorTag(&state, &at, true);
+					writeAnchorTag(&state, &at, true, false);
+					eatWhiteSpace(&at);
+				} else if(stringsMatchNullN("#INTERNAL_ANCHOR_IMPORTANT", at, 26)) { //NOTE(ollie): <a> tag with green background
+					at += 26;
+
+					writeAnchorTag(&state, &at, true, true);
+					eatWhiteSpace(&at);
+					
+				} else if(stringsMatchNullN("#Contents", at, 9)) { //NOTE(ollie): h2 with anchor to id in page
+					at += 9;
+
+					writeText(&state, "<h4>");
+
+					writeText(&state, "<a href='#");
+
+					eatWhiteSpace_justSpaces(&at);					
+
+					//add the web address
+					while(*at != ' ' && *at != '\r' && *at != '\n'&& *at != '\0') {
+						addElementInifinteAllocWithCount_(&state.contentsToWrite, at, 1);
+						at++;
+					}
+
+					writeText(&state, "'>");
+
+					//Write the tile
+					at += writeTextUntileNewLine_withSize(&state, at);
+
+					writeText(&state, "</a>");
+					writeText(&state, "</h4><br>");
+
 					eatWhiteSpace(&at);
 
+				} else if(stringsMatchNullN("#ID_HEADER", at, 10)) { //NOTE(ollie): 
+					at += 10;
+
+					eatWhiteSpace(&at);
+
+					writeText(&state, "<h2>");
+
+					writeText(&state, "<span id='");
 					
+					//add the id address
+					while(*at != ' ' && *at != '\r' && *at != '\n'&& *at != '\0') {
+						addElementInifinteAllocWithCount_(&state.contentsToWrite, at, 1);
+						at++;
+					}
+
+					writeText(&state, "'>");					
+
+					at += writeH2_withSize(&state, at);
+
+					writeText(&state, "</span>");
+					writeText(&state, "</h2>");
+
+					eatWhiteSpace(&at);
+
 				} else if(stringsMatchNullN("#ANCHOR", at, 7)) { //NOTE(ollie): <a> tag
 					at += 7;
-					writeAnchorTag(&state, &at, false);
+					writeAnchorTag(&state, &at, false, false);
 					eatWhiteSpace(&at);
 
 				} else if(stringsMatchNullN("#QUESTION", at, 9)) { //NOTE(ollie): <a> tag
 					at += 9;
-					writeAnchorTag(&state, &at, false);
+					writeAnchorTag(&state, &at, false, false);
 					eatWhiteSpace(&at);
 				} else { //(stringsMatchNullN("#", at, 1)) { //NOTE(ollie): paragraph
 					// at++;
