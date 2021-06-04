@@ -336,6 +336,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hInstPrev, PSTR cmdline, int
 
 #HR
 
+#Email
+
+#HR
+
 ##<span id='id6'>QUIZ</span>
 
 <b>What function to we use to create a Window?</b>

@@ -342,9 +342,17 @@ static void endInfoCard(FileState *state) {
 	addElementInifinteAllocWithCount_(&state->contentsToWrite, text, sizeInBytes);
 }
 static void writeFooter(FileState *state) {
+	
 	char *text = "</div></body></html>";
 	u32 sizeInBytes = easyString_getSizeInBytes_utf8(text);
 	addElementInifinteAllocWithCount_(&state->contentsToWrite, text, sizeInBytes);
+
+	//NOTE: Javascript for post requests and email list
+
+	char * javascriptStr = "<script src='email.js'></script>";
+
+	sizeInBytes = easyString_getSizeInBytes_utf8(javascriptStr);
+	addElementInifinteAllocWithCount_(&state->contentsToWrite, javascriptStr, sizeInBytes);
 
 }
 
@@ -689,6 +697,13 @@ int main(int argc, char **args) {
 
 					writeAnchorTag(&state, &at, true, true);
 					eatWhiteSpace(&at);
+
+				} else if(stringsMatchNullN("#Email", at, 6)) { //NOTE(ollie): h2 with anchor to id in page
+					at += 6;
+
+					writeText(&state, "<div class='email-list'><p>Sign up to my Newsletter to get a weekly email about what I’m up to, what I’m learning and what I’m teaching.</p><div style='text-align: center;'><input class='email-input-style' id='email_input' type='email'/>");
+
+					writeText(&state, "<button class='subscribe-btn' onclick='testEmail()'>Subscribe</button><div id='email-loading-progress'></div></div></div>");
 					
 				} else if(stringsMatchNullN("#Contents", at, 9)) { //NOTE(ollie): h2 with anchor to id in page
 					at += 9;

@@ -369,7 +369,9 @@ You made it through the whole Part 1 lesson. Congratulate yourself! It’s no me
 
 In Part 2 we’ll render a colorful triangle to the screen, well on the way to rendering full 3d models. See you then!
 
-#ANCHOR_IMPORTANT https://oliver532.substack.com/p/coming-soon?r=9i1j7&utm_campaign=post&utm_medium=web&utm_source=copy Sign up to my Newsletter to get a weekly email about what I’m up to, what I’m learning and what I’m teaching.
+#HR 
+
+#Email
 
 #HR
 
