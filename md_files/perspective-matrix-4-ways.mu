@@ -16,7 +16,7 @@ Adding to this is the different orientations of the axis used in the 3d game wor
 
 In OpenGL NDC space, the coordinate system is Left-Handed (the z axis pointing into the screen). Direct3D is the same, but the Z-Axis origin is in a different place. In Opengl the Z-Axis ranges from -1 to 1, in Direct3D the Z-Axis ranges from 0 to 1 (both pointing into the screen). 
 
-On top of this, there is one more thing to take into consideration that also affects the perspective matrix: the way the matrix multiplication function is defined in the GPU shader language. How the shader language expects the matrix to be laid out in memory: Row Major or Colum Major. 
+On top of this, there is one more thing to take into consideration that also affects the perspective matrix: the order we are multiplying it in the shader (order of operations). 
 
 #HR
 
@@ -36,6 +36,7 @@ On top of this, there is one more thing to take into consideration that also aff
 #Contents id11 Matrix 6
 #Contents id12 Matrix 7
 #Contents id13 Matrix 8
+#Contents id14 Conclusion
 #Contents id15 Notes
 
 #HR
@@ -48,9 +49,9 @@ So there are three factors that contribute to the possible perspective matrices 
 
 2. The coordinate system of the GPU API your're using (NDC Space)
 
-3. The way the GPU API interprets the memory layout of the matrix in the shader language (is is Row Major or Column Major?). 
+3. The order of operations we are doing our matrix multiplications in the shader
 
-So to build the right perspective matrix, you have to be aware of all three of these things. For simplicity I'll only be looking at left and right handed game world coordinate systems (the two most common ones) and the two graphics APIs: OpenGL and Direct3D. I won't be deriving the matrix, just showing you the matrix and how you'd define it in code so you can see the differences. 
+So to build the right perspective matrix, you have to be aware of all three of these things. For simplicity I'll only be looking at left and right handed game world coordinate systems (the two most common ones) and the two graphics APIs: OpenGL and Direct3D. I'll also assume we're writing the order of multiplications like you'd see in Math, going from right to left. I won't be deriving the matrix, just showing you the matrix and how you'd define it in code so you can see the differences. 
 
 #HR 
 
@@ -116,17 +117,6 @@ Matrix_4x4 result = {{
 
 You'll notice it has the 1 in the 4th column, 3rd row which allows for the divide by Z the graphics card will do for us that makes the world have perspective (as opposed to orthographic). The 1 is positive since the Z-Axis in the game world is the same direction as the Z-Axis in OpenGl's NDC space (positive Z going into the screen).
 
-The values are also loaded into memory so that they are interleaved like so (moving left to right, top to down):
-
-#CODE
-
-XAxis.x XAxis.y XAxis.z XAxis.w YAxis.x YAxis.y YAxis.z YAxis.w 
-ZAxis.x ZAxis.y ZAxis.z ZAxis.w WAxis.x WAxis.y WAxis.z WAxis.w
-
-#ENDCODE
-
-This is how the Opengl shader langauge expects the memory to be laid out for it's matrix multiplication. 
-
 #HR
 
 #ID_HEADER id4 Matrix 2: OpenGL for Right Handed Orientated Game World (Camera looking down the Negative Z-Axis)
@@ -154,24 +144,13 @@ You'll notice the 1 value in the 4th column, 3rd row is now negative. Also the Z
 Matrix_4x4 result = {{
         1 / r,  0,  0,  0,
         0,  1 / t,  0,  0,
-        0,  0,  farClip/(farClip - nearClip),  (-nearClip*farClip)/(farClip - nearClip), 
-        0, 0,  1,  0
+        0,  0,  farClip/(farClip - nearClip), 1, 
+        0, 0,  (-nearClip*farClip)/(farClip - nearClip),  0
     }};
 
 #ENDCODE
 
-For the Direct3D matrices we have to account for two things: the memory layout of the matrix is swapped to what is used with Opengl: it is the transpose of the OpenGL matrix. Also the origin of the Z-Axis in NDC space is at zero not negative one. 
-
-To account for the memory layout, you'll see the matrix is the transpose of the OpenGL one: the perspective value of <b>1</b> is in 3rd column, 4th row now. And to account for the NDC origin, we no longer multiply the Z-Translation component(3rd Row, 4th Column) by 2 and the Z-Component(3rd Row, 3rd Column) value has also changed.
-
-The memory layout the Direct3D expects (moving left to right, top to down):
-
-#CODE
-
-XAxis.x YAxis.x ZAxis.x WAxis.x XAxis.y YAxis.y ZAxis.y WAxis.y
-XAxis.z YAxis.z ZAxis.z WAxis.z XAxis.w YAxis.w ZAxis.w WAxis.w
-
-#ENDCODE
+For the Direct3D matrices the origin of the Z-Axis in NDC space is at zero not negative one. To account for this, we no longer multiply the Z-Translation component(3rd Row, 4th Column) by 2 and the Z-Component(3rd Row, 3rd Column) value has also changed.
 
  #HR
 
@@ -182,8 +161,8 @@ XAxis.z YAxis.z ZAxis.z WAxis.z XAxis.w YAxis.w ZAxis.w WAxis.w
 Matrix_4x4 result = {{
         1 / r,  0,  0,  0,
         0,  1 / t,  0,  0,
-        0,  0,  -farClip/(farClip - nearClip), (-nearClip*farClip)/(farClip - nearClip), 
-        0, 0,  -1,  0
+        0,  0,  -farClip/(farClip - nearClip), -1, 
+        0, 0,  (-nearClip*farClip)/(farClip - nearClip),  0
     }};
 
 #ENDCODE
@@ -235,7 +214,7 @@ float originOffsetY = 0; //NOTE: Defined in NDC space
     
 #ENDCODE
 
-You'll see the homgenous cooridinate value (4th column, 3rd row) is now zero. Since we don't want to divide by the z-coordinate with a orthographic projection, we want the resulting w coordinate to be a 1. So we put a 1 in the 4th column, 4th row. (If we didn't do this, the w component of the resulting vector would be zero, and the graphics card would try diving the x, y, z values by zero which is not good!).
+You'll see the homgenous cooridinate value (4th column, 3rd row) is now zero. Since we don't want to divide by the z-coordinate with a orthographic projection, we want the resulting w coordinate to be a 1. So we put a 1 in the 4th column, 4th row. (If we didn't do this, the w component of the resulting vector would be zero, and the graphics card would try dividing the x, y, z values by zero which is not good!).
 
 #HR
 
@@ -281,15 +260,15 @@ The only difference in this Right Handed Orientation is the negative sign on the
 
 #CODE
     Matrix4 result = {{
-            a,  0,  0,  originOffsetX,
-            0,  b,  0,  originOffsetY,
-            0,  0,  1.0f/(farClip - nearClip), nearClip/(nearClip - farClip)), 
-            0, 0, 0,  1
+            a,  0,  0,  0,
+            0,  b,  0,  0,
+            0,  0,  1.0f/(farClip - nearClip), 0, 
+            originOffsetX, originOffsetY, nearClip/(nearClip - farClip)),  1
         }};
     
 #ENDCODE
 
-We account for the origin shift in Direct3D and the memory layout difference. 
+We account for the origin shift in Direct3D. 
 
 #HR
 
@@ -297,10 +276,10 @@ We account for the origin shift in Direct3D and the memory layout difference.
 
 #CODE
     Matrix4 result = {{
-            a,  0,  0,  originOffsetX,
-            0,  b,  0,  originOffsetY,
-            0,  0,  -1.0f/(farClip - nearClip), nearClip/(nearClip - farClip)), 
-            0, 0, 0,  1
+            a,  0,  0,  0,
+            0,  b,  0,  0,
+            0,  0,  -1.0f/(farClip - nearClip), 0, 
+            originOffsetX, originOffsetY, nearClip/(nearClip - farClip)),  1
         }};
     
 #ENDCODE
@@ -312,6 +291,34 @@ Same as above but we flip the incoming z values.
 #ID_HEADER id14 Conclusion 
 
 Hopefully this wil be a handy reference when implementing the perspective matrix in your program. We covered the four most common perspective matrices you'll come across aswell as showing the orthographic versions. 
+
+These matricies could just as easily been written as their transpose looking like this for Matrix 3: 
+
+#CODE
+Matrix_4x4 result = {{
+        1 / r,  0,  0,  0,
+        0,  1 / t,  0,  0,
+        0,  0,  farClip/(farClip - nearClip), (-nearClip*farClip)/(farClip - nearClip), 
+        0, 0,  1,  0
+    }};
+#ENDCODE
+
+You may come across this layout in people's code. We've assumed in all our matrices that in our shader code we're multiplying them in the same order as you'd see in Math. So our Model View Projection calculation would look like this: 
+
+#CODE
+vec4 position = Projection * View * Model * vec4(incoming_vertex_vec3, 1.0);
+#ENDCODE  
+
+If we took the transpose of our matrices, we would also have to flip the order of operations in our shader code. So it would look like this:  
+
+
+#CODE
+//NOTE: We've flipped the order of matrix multiplies
+mat4 MVP = Model * View * Projection;
+vec4 position = MVP * vec4(incoming_vertex_vec3, 1.0);
+#ENDCODE  
+
+Depending on how you want to write your matrix multiplication in your shader, you have to match it with the order of your matrix.
 
 #HR
 
