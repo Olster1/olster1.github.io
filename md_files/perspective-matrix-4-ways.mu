@@ -302,7 +302,7 @@ Matrix_4x4 result = {{
     }};
 #ENDCODE
 
-You may come across this layout in people's code. We've assumed in all our matrices that in our shader code we're multiplying them in the same order as you'd see in Math (from Right to Left). 
+You may come across this layout in people's code. If you do this, you have to account for it with your order of operations done in the shader. 
 
 ###GLSL
 
