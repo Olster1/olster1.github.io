@@ -9,11 +9,12 @@
 ####Direct 3d
 <a href="./direct3d_11_part1.html">Simple Direct3d: Part 1 - Create a Window</a>
 <a href="./direct3d_11_part2.html">Simple Direct3d: Part 2 - Creating a D3D Device and Device Context</a>
-<a href="./create_direct_x_11_part3.html">Simple Direct3d: Part 3</a>
+<a href="./direct3d_11_part3.html">Simple Direct3d: Part 3 - Drawing a Colorful Triangle</a>
 #HR
 ####Windows Games 
 <a href="./windows-keyboard-input.html">Windows Keyboard Input</a>
 <a href="./saving-players-save-file.html">Saving player’s save file to a safe location</a>
+<a href="./perspective-matrix-4-ways.html">OpenGL and Direct3D Perspective Matrices</a>
 #HR
 ####<b>Mental Health</b>
 <a href="./intro_to_cbt.html">Introduction to Cognitive Behaviour Therapy</a>

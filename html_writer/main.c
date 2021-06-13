@@ -213,6 +213,15 @@ static u32 writeText_returnSize_encoded(FileState *state, char *text, u32 sizeIn
 	return sizeInBytes;
 }
 
+#define writeTextUntileNewLine_withSize_notEncoded(state, text) writeText_returnSize_notEncoded_(state, text, getBytesUntilNewLine((u8 *)text))
+static u32 writeText_returnSize_notEncoded_(FileState *state, char *text, u32 sizeInBytes) {
+
+	addElementInifinteAllocWithCount_(&state->contentsToWrite, (u8 *)text, sizeInBytes);
+
+	return sizeInBytes;
+}
+
+
 static void writeAnchorTag(FileState *state, u8 **at_, bool addButton, bool isInternal) {
 	u8 *at = *at_;
 
@@ -696,6 +705,21 @@ int main(int argc, char **args) {
 					at += 26;
 
 					writeAnchorTag(&state, &at, true, true);
+					eatWhiteSpace(&at);
+
+				} else if(stringsMatchNullN("#IMPORTANT", at, 10)) { //NOTE(ollie): <a> tag with green background
+					at += 10;
+
+
+					char *str = "<div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'>";
+					writeText_(&state, str, easyString_getSizeInBytes_utf8(str));
+
+					//write till end of line
+					at += writeTextUntileNewLine_withSize_notEncoded(&state, at);
+
+					str = "</div>";
+					writeText_(&state, str, easyString_getSizeInBytes_utf8(str));
+
 					eatWhiteSpace(&at);
 
 				} else if(stringsMatchNullN("#Email", at, 6)) { //NOTE(ollie): h2 with anchor to id in page
