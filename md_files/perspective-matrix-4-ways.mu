@@ -36,6 +36,7 @@ On top of this, there is one more thing to take into consideration that also aff
 #Contents id11 Matrix 6
 #Contents id12 Matrix 7
 #Contents id13 Matrix 8
+#Contents id16 Order of Operations
 #Contents id14 Conclusion
 #Contents id15 Notes
 
@@ -288,9 +289,7 @@ Same as above but we flip the incoming z values.
 
 #HR
 
-#ID_HEADER id14 Conclusion 
-
-Hopefully this wil be a handy reference when implementing the perspective matrix in your program. We covered the four most common perspective matrices you'll come across aswell as showing the orthographic versions. 
+#ID_HEADER id16 Order of Operations
 
 These matricies could just as easily been written as their transpose looking like this for Matrix 3: 
 
@@ -303,7 +302,11 @@ Matrix_4x4 result = {{
     }};
 #ENDCODE
 
-You may come across this layout in people's code. We've assumed in all our matrices that in our shader code we're multiplying them in the same order as you'd see in Math. So our Model View Projection calculation would look like this: 
+You may come across this layout in people's code. We've assumed in all our matrices that in our shader code we're multiplying them in the same order as you'd see in Math (from Right to Left). 
+
+###GLSL
+
+So our Model View Projection calculation would look like this in glsl with the matrices layout in this article: 
 
 #CODE
 vec4 position = Projection * View * Model * vec4(incoming_vertex_vec3, 1.0);
@@ -311,14 +314,38 @@ vec4 position = Projection * View * Model * vec4(incoming_vertex_vec3, 1.0);
 
 If we took the transpose of our matrices, we would also have to flip the order of operations in our shader code. So it would look like this:  
 
-
 #CODE
 //NOTE: We've flipped the order of matrix multiplies
-mat4 MVP = Model * View * Projection;
-vec4 position = MVP * vec4(incoming_vertex_vec3, 1.0);
+mat4 position = vec4(incoming_vertex_vec3, 1.0) * Model * View * Projection;
 #ENDCODE  
 
-Depending on how you want to write your matrix multiplication in your shader, you have to match it with the order of your matrix.
+###HLSL
+
+In hlsl with the original layout of the matricies in this article: 
+
+#CODE 
+float4 position = mul(Model, float4(incoming_vertex_vec3, 1.0f));
+position = mul(View, position);
+position = mul(Projection, position);
+#ENDCODE
+
+And if we took the transpose of them: 
+
+#CODE 
+float4 position = mul(float4(incoming_vertex_vec3, 1.0f), Model);
+position = mul(position, View);
+position = mul(position, Projection);
+#ENDCODE
+
+#ANCHOR_IMPORTANT https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-mul The mul function will change the incoming vector as a row or column vector based on wether you pass it as argument 1 or 2
+
+Depending on how you want to write your matrix multiplication in your shader, you have to match it with the way you layout you matrix in memory.
+
+#HR
+
+#ID_HEADER id14 Conclusion 
+
+Hopefully this wil be a handy reference when implementing the perspective matrix in your program. We covered the four most common perspective matrices you'll come across aswell as showing the orthographic versions. 
 
 #HR
 
