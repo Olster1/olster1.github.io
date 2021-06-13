@@ -337,7 +337,7 @@ position = mul(position, View);
 position = mul(position, Projection);
 #ENDCODE
 
-#ANCHOR_IMPORTANT https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-mul The mul function will change the incoming vector as a row or column vector based on wether you pass it as argument 1 or 2
+#ANCHOR_IMPORTANT https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-mul The mul function will change the incoming vector as a row or column vector based on whether you pass it as argument 1 or 2
 
 Depending on how you want to write your matrix multiplication in your shader, you have to match it with the way you layout you matrix in memory.
 
