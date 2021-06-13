@@ -6,9 +6,13 @@
 
 #HR
 
+<img src='./photos/4matrices/world_to_plane.png' style='width: 50%; min-width: 9cm; '>
+
 The Perspective Matrix is vital to 3d graphics. It's the final matrix responisble for projecting a 3d object from the world onto a flat screen. Unlike the other two common matrices used in 3d graphics: the Model Matrix (resposible for moving the vertices from Model to World Space) and View Matrix (responsible for moving the vertices from World to Camera Space), the perspective matrix can be hard to intuitively understand. Specifically the the Z-Axis transofrmation to prepare it correctly for the z-divide.
 
 Adding to this is the different orientations of the axis used in the 3d game world. There are two common orientations - the so called left hand and right hand coorindate orientations. The positive X axis pointing right, the positive Y axis pointing up but the positive Z-axis pointing into the screen (Left handed) or the positive Z-axis pointing out of the screen (Right Handed coordinate system). Although these are the two most common coordinate systems there are 4 possible unique 3d orientations that a game world could use. This means 4 different perspective matrices to map the game world onto a flat screen. This is only for one graphics API. The number of matrices increase by the number of graphics API's with their own internal coordinate systems (NDC space) that you have to convert to.
+
+<img src='./photos/4matrices/ndc_space.png' style='width: 60%; min-width: 9cm;'>
 
 In OpenGL NDC space, the coordinate system is Left-Handed (the z axis pointing into the screen). Direct3D is the same, but the Z-Axis origin is in a different place. In Opengl the Z-Axis ranges from -1 to 1, in Direct3D the Z-Axis ranges from 0 to 1 (both pointing into the screen). 
 
@@ -316,10 +320,6 @@ Hopefully this wil be a handy reference when implementing the perspective matrix
 [1] These matrices and information is taken from <i>3D Math Primer for Graphics and Game Development (2nd Edition) by Fletcher Dunn and Ian Parberry</i> in Chapter 10
 
 [2] <a href='https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix'>You can see the derivation of the perspective matrix here</a>. This is building a matrix like Matrix 4 in the article.
-
-
-
- 
 
 
 
