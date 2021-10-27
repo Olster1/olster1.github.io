@@ -2,7 +2,7 @@
 #TITLE Hi there Friends! 👋
 #BR 
 #HR 
-##I'm Ollie. Here I write about gardening and programming. 
+##I'm Ollie. Here I write about gardening 👨‍🌾 and programming 💻. 
 ###I like growing food, cooking and programming apps and games.  
 #HR
 ###<b>Gardening</b>
@@ -33,9 +33,6 @@
 <a href="./micro-exercise.html">Micro Exercise</a>
 <a href="./motivation-over-willpower.html">Motivation Over Willpower</a>
 <a href="./i-dont-have-time-to-exercise.html">I don't have time to exercise</a>
-###<b>Work</b>
-<a href="./living-everyday-like-its-saturday.html">Living Everyday like it's Saturday!</a>
-<a href="./how-to-work-as-a-freelancer.html">How to work as a Freelancer</a>
 ###<b>Book Summaries</b>
 <a href="./lifespan-david-sinclair-summary.html">LifeSpan Book: Thoughts & Notes</a>
 <a href="./HowToChangeYourMind.html">How to Change Your Mind: Thoughts & Notes</a>
