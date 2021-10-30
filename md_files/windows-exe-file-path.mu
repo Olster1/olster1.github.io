@@ -3,7 +3,7 @@
 
 #HR 
 
-If your making a game in Windows, your're going to want to get the path to your game exe. Since a user can put your game whereever they want, you don't specifically know where your resources like texture, sounds, fonts and models will be on their computer. <b>You only know they'll be in a specific folder relative to your .exe.</b> If we know, this we can work backwards and make the absolute file name to access our game resources. 
+If your making a game in Windows, your're going to want to get the path to your game exe. Since a user can put your game whereever they want, you don't specifically know where your resources like texture, sounds, fonts and models will be on their computer. <b>You only know they'll be in a specific folder relative to your .exe.</b> If we know this, we can work backward and make the absolute file name to access our game resources. 
 
 For example if the user puts the game in their <i>Documents</i> folder, the exe path would look something like this:
 
