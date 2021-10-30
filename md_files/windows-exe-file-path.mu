@@ -88,7 +88,7 @@ while(*at) {
         
     one_past_last_slash[charIndex] = *at;
 
-    assert(((one_past_last_slash + charIndex) - resourcesPath) <= MAX_PATH*sizeof(WCHAR)); //NOTE: Make sure we have overwritten the length of the buffer
+    assert(((one_past_last_slash + charIndex) - resourcesPath) <= MAX_PATH*sizeof(WCHAR)); //NOTE: Make sure we haven't overwritten the length of the buffer
 
     charIndex++;
     at++;
