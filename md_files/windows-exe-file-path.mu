@@ -38,7 +38,6 @@ In this tutorial we'll do two things:
 
 const WCHAR executablePath[MAX_PATH + 1]; //NOTE: Use WCHAR type to be unicode compatible 
 
-
 DWORD size_of_executable_path =
             GetModuleFileNameW(0, executablePath, sizeof(executablePath)); //NOTE: Use the wide version of the function to be unicode compatible
 
