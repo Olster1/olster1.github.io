@@ -76,7 +76,7 @@ for(int i = 0; i < size_of_executable_path; ++i) {
 
 #ENDCODE
 
-So far we've copied over the executable string to a new buffer. We then loop through all the characters in the buffer and see if they are a back slash. Each time we find one we update it to be the last slash in the buffer. Each time we encounter a new one, it becomes the new last slash. Now that we know where to start, we can append our <i>"resources\"</i> string.
+So far we've copied over the executable string to a new buffer. We then loop through all the characters in the buffer and see if they are a back slash. Each time we encounter a new one, it becomes the new last slash. Now that we know where to start, we can append our <i>"resources\"</i> string.
 
 #CODE
 
