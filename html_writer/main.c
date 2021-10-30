@@ -495,7 +495,7 @@ int main(int argc, char **args) {
 										writeColor(&state, COLOR_COMMENT);
 										tempAt += writeTextUntileNewLine_withSize(&state, tempAt);
 										endColor(&state);
-										assert(tempAt[0] == '\r');
+										assert(tempAt[0] == '\r' || tempAt[0] == '\n');
 										lastWord = 0;
 										wordLength = 0;
 										break;

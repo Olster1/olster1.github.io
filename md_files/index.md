@@ -2,13 +2,7 @@
 #TITLE Hi there Friends! 👋
 #BR 
 #HR 
-##I'm Ollie. Here I write about gardening 👨‍🌾 and programming 💻. 
-###I like growing food, cooking and programming apps and games.  
-#HR
-###<b>Gardening</b>
-<a href="./ways_to_add_nutrients_to_garden.html">Ways to add nutrients to your garden</a>
-#HR
-###<b>App programming in Unity</b>
+##Here I write about programming games using C++ in Windows  
 #HR
 ###<b>Game Engine Development</b>
 ####Direct 3d
@@ -17,9 +11,13 @@
 <a href="./direct3d_11_part3.html">Simple Direct3d: Part 3 - Drawing a Colorful Triangle</a>
 #HR
 ####Windows Games 
+<a href="./windows-exe-file-path.html">Get your .exe file path in Windows</a>
 <a href="./windows-keyboard-input.html">Windows Keyboard Input</a>
 <a href="./saving-players-save-file.html">Saving player’s save file to a safe location</a>
 <a href="./perspective-matrix-4-ways.html">OpenGL and Direct3D Perspective Matrices</a>
+#HR
+###<b>Gardening</b>
+<a href="./ways_to_add_nutrients_to_garden.html">Ways to add nutrients to your garden</a>
 #HR
 ###<b>Parenting</b>
 <a href="./extraordinary_parenting_book_summary.html">Extraordinary Parenting Book Summary</a>
