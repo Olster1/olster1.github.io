@@ -202,7 +202,7 @@ This is the game loop in which we put all our game-logic that get's updated each
 
 ##<span id='id5'>Handling the Operating Systems messages</span>
 
-If we ran this, we’d be stuck in an infinite loop since we don’t handle our messages — specifically our exit message. Each time the OS sends our pogram a message, it gets added to a queue. This don't get processed by themselves, we ourselves have to empty this queue. The function <i>Peek Message</i> is used to retrieve the message from the bottom of the queue. To process all the messages on the queue, we stay in a while loop until PeekMessage returns false, signifying there aren't any messages left. 
+If we ran this, we’d be stuck in an infinite loop since we don’t handle our messages — specifically our exit message. Each time the OS sends our program a message, it gets added to a queue. This don't get processed by themselves, we ourselves have to empty this queue. The function <i>Peek Message</i> is used to retrieve the message from the bottom of the queue. To process all the messages on the queue, we stay in a while loop until PeekMessage returns false, signifying there aren't any messages left. 
 
 For each message we first check if it's a WM_QUIT message, if so we want to exit our game loop. We then use <i>Translate Message</i> to turn any Keyboard Input that is text into WM_CHAR messages. We then call <i>DispatchMessage</i>. All the work of dealing with the messages is done in this function, as it calls our message callback.
 
