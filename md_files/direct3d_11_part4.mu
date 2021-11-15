@@ -242,6 +242,10 @@ That's it! 
 
 #HR
 
+#Email
+
+#HR
+
 ##Quiz
 
 <b>1. What three resources do we need to create to sample our texture in the shader?</b>
@@ -260,3 +264,6 @@ That's it! 
 [1] Point Sampling is equivalent to <i>Nearest</i> Sampling in OpenGL
 
 [2] You can change the first pixel to be the bottom left if you'd prefer using stbi_set_flip_vertically_on_load(int flag_true_if_should_flip); function. You'd also have to change the texture coordinates of the vertex buffer.  
+
+#INTERNAL_ANCHOR_IMPORTANT ./direct3d_11_part3.html PREVIOUS LESSON
+#INTERNAL_ANCHOR_IMPORTANT ./direct3d_11_part5.html NEXT LESSON
