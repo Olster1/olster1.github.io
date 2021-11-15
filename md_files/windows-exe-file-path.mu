@@ -26,80 +26,55 @@ C:\\Users\myName\Documents\awesome_game\resources\Arial_font.tff
 
 We can alter our original exe string, removing the exe off the end and replacing it with <b>resources</b> and the resource name.
 
-In this tutorial we'll do two things: 
+In this tutorial we'll do four things: 
 
-1. Get our .exe path using the Win32 API
-2. Alter this string to make our resource path string
+1. Get our .exe path
+2. Remove the exe name 
+3. Append our new file location
+4. Convert the string from utf-16 to utf-8
 
 #HR
 
 ###Get the .exe path using the Win32 API
 #CODE
 
-const WCHAR executablePath[MAX_PATH + 1]; //NOTE: Use WCHAR type to be unicode compatible 
-
-DWORD size_of_executable_path =
-            GetModuleFileNameW(0, executablePath, sizeof(executablePath)); //NOTE: Use the wide version of the function to be unicode compatible
+WCHAR resourcesPath[MAX_PATH];
+int sizeOfPath = GetModuleFileNameW(NULL, resourcesPath, ARRAYSIZE(resourcesPath));
 
 //NOTE: Assert if function failed
-if(size_of_executable_path == 0) {
+if(sizeOfPath == 0) {
     assert(!"get module file name failed");
 }
 
 #ENDCODE
 
-We use the Windows function <i>GetModuleFileNameW</i> to get the file path of our exe. We can pass zero as the first argument because we want it for the process running this function. We then assert the function worked. To be unicode compatible, we use the WCHAR type for the buffer we'll store the name in, and use the MAX_PATH macro for the size of the buffer. We add 1 to it to account for the null terminator.
+We use the Windows function <i>GetModuleFileNameW</i> to get the file path of our exe. We can pass NULL as the first argument because we want it for the process running this function. We also pass the buffer we want to be filled out and the size. We then assert the function worked. 
+
+To be unicode compatible, we use the WCHAR type for the buffer to be filled out, and use the MAX_PATH macro for the size of the buffer.
 
 #HR
 
 ###Alter the string
 
-Now that we have the file path, we can get our resource folder. Say if we have a folder like above call <i>resources</i> in the same folder as our exe, we'll want to remove the exe path, and replace it with the string <i>resources\</i>.
+Now that we have the file path, we can create our our resource folder string. Say if we have a folder like above call <i>resources</i> in the same folder as our exe, we'll want to remove the exe path, and replace it with the string <i>resources\</i>. We could do this ourselves but Windows already has a function to do this for us. First we'll remove the .exe off the end of our string. 
 
 #CODE
 
-WCHAR resourcesPath[MAX_PATH + 1]; //NOTE: Use WCHAR type to be unicode compatible 
-
-WCHAR stringToAppend = L"resources\"; //NOTE: The L converts the string to a wide string (utf-16) 
-
-memcpy(resourcesPath, executablePath, size_of_executable_path*sizeof(WCHAR)); //NOTE: Copy over the exe string so we don't alter the executable path
-
-//NOTE: Find the last backslash in the path
-
-WCHAR *one_past_last_slash = resourcesPath;
-for(int i = 0; i < size_of_executable_path; ++i) {
-
-    if(resourcesPath[i] == L'\\') {
-        one_past_last_slash = resourcesPath + i + 1;
-    }
-}
+PathRemoveFileSpecW(resourcesPath);
 
 #ENDCODE
 
-So far we've copied over the executable string to a new buffer. We then loop through all the characters in the buffer and see if they are a back slash. Each time we encounter a new one, it becomes the new last slash. Now that we know where to start, we can append our <i>"resources\"</i> string.
+Great, we've remove the trailing exe and the slash preceding it. Our string should now look like this <i>C:\\Users\myName\Documents\awesome_game</i>
+
+Now we'll add the folder name our resources are in. Again we could do this manually, but Windows has a handy function that does it for us.
 
 #CODE
 
-//NOTE: Loop through the string to append and add it to the buffer
-WCHAR *at = stringToAppend;
-
-int charIndex = 0;
-while(*at) {
-        
-    one_past_last_slash[charIndex] = *at;
-
-    assert(((one_past_last_slash + charIndex) - resourcesPath) <= MAX_PATH*sizeof(WCHAR)); //NOTE: Make sure we haven't overwritten the length of the buffer
-
-    charIndex++;
-    at++;
-}
-
-//NOTE: Null terminate the string 
-one_past_last_slash[charIndex] = L'/0';
+PathAppendW(resourcesPath, L"resources\\");
 
 #ENDCODE
 
-There we have it. We looped through the string to append and added each character to the buffer. We know we're not going to overflow the buffer because file paths can only be MAX_PATH long. We assert just to make sure we don't overflow the buffer. 
+There we have it. With just three functions we've created the absolute path to our game resources. Since this string is utf-16, we may want to convert it to utf-8.
 
 #HR
 
@@ -150,12 +125,20 @@ We first find the size of the buffer we need to allocate. We then allocate it us
 
 We did it! We've now got an <b>absolute</b> path to our game's resources. We can use this now to access them without crashing since it knows where they'll be. 
 
-Before we compile it, we'll add the Windows header since we are using windows functions and data types. We also define <i>UNICODE</i>, telling windows we want to be Unicode compatible, so please help us!
+Before we compile it, we'll add the Windows header since we are using windows functions and data types. To use <i>PathRemoveFileSpecW</i> and <i>PathAppendW</i> we have to include the header <i>shlwapi.h</i> and link to <i>Shlwapi.lib</i> in our build script.
 
 #CODE
-#define UNICODE
+#include <shlwapi.h>
 #include <windows.h>
 #ENDCODE
+
+Our build script:
+
+#CODE
+cl -Od -Zi main.cpp /link Shlwapi.lib
+#ENDCODE
+
+Od and Zi being so I can debug it in Visual Studio and see the if the string we make is correct!  
 
 Hope you enjoyed this article. Happy game making!
 
