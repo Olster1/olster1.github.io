@@ -1,6 +1,6 @@
 #CARD
 #TITLE Direct3d 11 for games: Part 6
-##Timing your Game Loop
+##Timing your Game Loop and Animating the Quad
 #CARD
 
 This lesson is less about Direct3D and more about timing your game loop.
@@ -63,6 +63,44 @@ OutputDebugStringA(buffer);
 #ENDCODE
 
 Hopefully you'll see how long your frame takes to render and if your swap interval is 1, you'll see the frame time matches your monitor refresh rate.
+
+#HR
+
+The code is the same as last lessons code, just with the new timing code. I'm also rendering without a texture on the Quad. Also have to include <b>stdio.h</b> to use sprintf.
+
+#CODE
+//NOTE: At top of file
+#include <stdio.h>
+#ENDCODE	
+
+#HR 
+
+Now that we have dt available to us we can use it to animate the position of our Quad.
+
+We can use <b>dt</b> to update the position of the quad by changing the constant buffer position. 
+
+#CODE 
+
+//NOTE: Store time since start of game
+static float totalTime = 0;
+totalTime += dt; 
+
+//...get pointer to constant buffer using Map
+constants->pos = {cosf(totalTime)*0.25f, sinf(totalTime)*0.3f};
+#ENDCODE
+
+This code will make our quad move in a circle. 
+
+Also have to #include <Math.h> to use <i>cosf</i> and <i>sinf</i>.
+
+#HR
+
+##Conclusion
+
+We did it, we're now timing our frame so we can update our game correctly. In the next lesson we'll draw a cube and use <b>dt<b> to update the world.
+
+Happy game making! 
+
 
 #ANCHOR https://github.com/Olster1/directX11_tutorial/tree/main/lesson6 You can see the full code for this article here
 

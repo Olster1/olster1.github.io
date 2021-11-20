@@ -11,7 +11,7 @@
 <a href="./direct3d_11_part3.html">Simple Direct3d: Part 3 - Drawing a Colorful Triangle</a>
 <a href="./direct3d_11_part4.html">Simple Direct3d: Part 4 - Texturing our Triangle</a>
 <a href="./direct3d_11_part5.html">Simple Direct3d: Part 5 - Using a Constant Buffer</a>
-<a href="./direct3d_11_part6.html">Simple Direct3d: Part 6 - Timing your Game Loop</a>
+<a href="./direct3d_11_part6.html">Simple Direct3d: Part 6 - Timing your Game Loop and Animating the Quad</a>
 
 #HR
 ####Windows Games 
