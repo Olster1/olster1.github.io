@@ -50,7 +50,7 @@ D3D11_TEXTURE2D_DESC textureDesc = {};
     textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
 #ENDCODE
 
-We set the width, height, and format of the texture. We also set the usage to iD3D11_USAGE_IMMUTABLE because we won't be changing the texture at runtime. And set the Bind Flags to being a D3D11_BIND_SHADER_RESOURCE.
+We set the width, height, and format of the texture. We also set the usage to iD3D11_USAGE_IMMUTABLE because we  n't be changing the texture at runtime. And set the Bind Flags to being a D3D11_BIND_SHADER_RESOURCE.
 
 
 We also need to create a D3D11_SUBRESOURCE_DATA as we did with the vertex data that contains the actual image data.
