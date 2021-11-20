@@ -124,7 +124,7 @@ We're going to be changing the values in this buffer per frame, so we want to us
 
 #ID_HEADER id1 Writing into the Constant Buffer
 
-Next step is to now write into our buffer. Each frame we're going to map the buffer, that is get a pointer to the buffer into video memory. We can then cast the memory as the struct we said it was. Something to note here is we're using the <i>D3D11_MAP_WRITE_DISCARD</i> flag. This means we don't have to worry about writing over a previous constant buffer that may be still in use by the GPU from a previous draw call. It will create a new buffer for us so we don't have to manage this.  
+Next step is to now write into our buffer. Each frame we're going to map the buffer, that is get a pointer to the buffer into video memory. We can then cast the memory as the struct we said it was. Something to note here is we're using the <i>D3D11_MAP_WRITE_DISCARD</i> flag. This means we don't have to worry about writing over a previous constant buffer that may be still in use by the GPU from a previous draw call. It will create a new buffer for us so we don't have to manage this [1].  
 
 #CODE 
 D3D11_MAPPED_SUBRESOURCE mappedSubresource;
@@ -219,6 +219,13 @@ Phew! Made it through another lesson. Got constant buffers down which is one mor
 [Yes, you can pass an array to this function and set the number of buffers, each one attaching to the subsequent slot ids based off the first slot index.]
 
 #HR
+
+##NOTES
+
+[1] The CPU needs to ensure that it doesn't write to a buffer that the GPU is reading from, otherwise the GPU will read partially-updated data or just the wrong data entirely. The DISCARD mode allows drivers to avoid this case by giving the CPU a different area of memory to write to each time it Maps a buffer. The semantics of DISCARD means the contents of the memory are invalid, which means the driver can switch memory locations and you can't have any expectations as to the content of that memory. NO_OVERWRITE is similar, except rather than have the driver handle the memory you essentially just promise the runtime that you're not going to overwrite some memory that's currently in use by GPU.
+
+So the point is, there's no way to partially update a buffer AND guarantee that you're not going to overwrite some memory that the GPU is using. Actually there is one way, which is to sync with the GPU every time you update the buffer, but that would cause severe performance problems. The best you can do is keep your own copy of the buffer contents on the CPU, partially update the CPU buffer, and then use the CPU buffer to update the contents of your dynamic GPU buffer. <a href='https://gamedev.net/forums/topic/615701-d3d11-partially-updating-dynamic-buffers/4887352/'>Referenced from here</a>
+
 
 #INTERNAL_ANCHOR_IMPORTANT ./direct3d_11_part4.html PREVIOUS LESSON
 #INTERNAL_ANCHOR_IMPORTANT ./direct3d_11_part6.html NEXT LESSON
