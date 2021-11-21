@@ -94,6 +94,7 @@ struct Constants
     float4 color;
     float2 pos;
 };
+#ENDCODE 
 
 We're then going to create the buffer on the GPU which will store these values for us.
 
