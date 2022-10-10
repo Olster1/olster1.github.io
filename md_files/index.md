@@ -25,8 +25,3 @@
 ###<b>Mental Health</b>
 <a href="./intro_to_cbt.html">Introduction to Cognitive Behaviour Therapy</a>
 <a href="./extraordinary_parenting_book_summary.html">Extraordinary Parenting book summary</a>
-
-#HR
-###<b>Permaculture & Gardening</b>
-<a href="./ways_to_add_nutrients_to_garden.html">Ways to Add Nutrients to Garden</a>
-
