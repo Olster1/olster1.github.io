@@ -1,10 +1,12 @@
 #CARD
-#TITLE Hi there Friends! 👋
+#TITLE Ollie's Blog
 #BR 
-#HR 
-##Here I write about programming games using C++ in Windows  
 #HR
-###<b>Game Engine Development</b>
+
+<a href="./so_good_they_cant_ignore_you.html">So Good they can't ignore you</a>
+
+
+###<b>Programming</b>
 ####Direct 3d
 <a href="./direct3d_11_part1.html">Simple Direct3d: Part 1 - Create a Window</a>
 <a href="./direct3d_11_part2.html">Simple Direct3d: Part 2 - Creating a D3D Device and Device Context</a>
@@ -22,4 +24,9 @@
 #HR
 ###<b>Mental Health</b>
 <a href="./intro_to_cbt.html">Introduction to Cognitive Behaviour Therapy</a>
+<a href="./extraordinary_parenting_book_summary.html">Extraordinary Parenting book summary</a>
+
+#HR
+###<b>Permaculture & Gardening</b>
+<a href="./ways_to_add_nutrients_to_garden.html">Ways to Add Nutrients to Garden</a>
 
