@@ -5,91 +5,101 @@
 #BR
 #HR 
 #BR
-#Extraordinary Parenting by Eloise Rickman was an amazing read. It covers a lot of ground to being a great parent and honestly felt like a cheat book had been handed to me.
-#It covered all the topics I feel are inportant to being a great parent and it came at the perfect time. We are currently on holiday with my three year old and my step daughter who is eight. The older one is sometimes a challenge to parent. 
-# With the information in the book, it's given me tools to give her the best childhood I can and be the best parent I can given the circumstances. Without further ado, lets jump into what tools and ideas this book provides the reader. 
+Extraordinary Parenting by Eloise Rickman was an amazing read. It covers a lot of ground to being a great parent and honestly felt like a cheat book had been handed to me.
+
+It covered all the topics I feel are inportant to being a great parent and it came at the perfect time. We are currently on holiday with my three year old and my step daughter who is eight. The older one is sometimes a challenge to parent. 
+
+With the information in the book, it's given me tools to give her the best childhood I can and be the best parent I can given the circumstances. Without further ado, lets jump into what tools and ideas this book provides the reader. 
 #HR
 #BR
 ##The five core steps to raising and educating kids
 #BR
-#1. Prioritise family relationships - deepening your connection to your children through <b>playful and empthetic parenting</b>.
+1. Prioritise family relationships - deepening your connection to your children through <b>playful and empthetic parenting</b>.
 #BR
-#2. Building strong adaptable rhythms to provide stability and predictability, even when the world can feel anything but this.
+2. Building strong adaptable rhythms to provide stability and predictability, even when the world can feel anything but this.
 #BR
-#3. Creating a calm and simplified home environment that encourages deep play and independence, and act as a safe haven. 
+3. Creating a calm and simplified home environment that encourages deep play and independence, and act as a safe haven. 
 #BR
-#4. Exploring enjoyable ways of learning together as a family (extension of 1. deepening your connection to your child); finding ways for your children to thrive while exploring their unique interests and abilities.  
+4. Exploring enjoyable ways of learning together as a family (extension of 1. deepening your connection to your child); finding ways for your children to thrive while exploring their unique interests and abilities.  
 #BR
-#5. Taking care of your own needs as a parent; filling your own emtional, intellectual, social cup which overflows to your kids. 
+5. Taking care of your own needs as a parent; filling your own emtional, intellectual, social cup which overflows to your kids. 
 #HR
 #BR
 ##Building deep relationships with your children
 #BR
-#Concentrating on building your relationship with your child is the best thing you can do. A positive parent-child relationship is vital for their happiness, health and their emotional resilience into adulthood. The way they're treated and the secure bonds they form during childhood determine their emtional development throughout the rest of their lives. 
-#Joyful, loving interactions and secure attachements are the building blocks of self-worth, social and physical development and emotional intelligence. <i>Each parental smile and affectionate look helps their brain grow.</i> 
-#When a child's emotional and physical needs are met <b>consistently</b>, and they are treated with warmth, compassion, kindness and love, they're more likely to develop an expectation of a supportive and kind world. 
+Concentrating on building your relationship with your child is the best thing you can do. A positive parent-child relationship is vital for their happiness, health and their emotional resilience into adulthood. The way they're treated and the secure bonds they form during childhood determine their emtional development throughout the rest of their lives. 
+
+Joyful, loving interactions and secure attachements are the building blocks of self-worth, social and physical development and emotional intelligence. <i>Each parental smile and affectionate look helps their brain grow.</i> 
+
+When a child's emotional and physical needs are met <b>consistently</b>, and they are treated with warmth, compassion, kindness and love, they're more likely to develop an expectation of a supportive and kind world. 
 #BR
-#Some ways to foster secure attachement with your child: 
+
+Some ways to foster secure attachement with your child: 
 #BR
-#1. Show physical and verbal affection. Give them your undivided attention and presence each day. 
+1. Show physical and verbal affection. Give them your undivided attention and presence each day. 
 #BR
-#2. Truly listen to them speak. Take what they are saying seriously and try to accomodate what they have asked for. 
+2. Truly listen to them speak. Take what they are saying seriously and try to accomodate what they have asked for. 
 #BR
-#3. Treat them as equals. Respect their opinions and knowledge just like they were an adult.
+3. Treat them as equals. Respect their opinions and knowledge just like they were an adult.
 #BR
-#4. Give them freedom to try new things, and the space to fail and make mistakes. Give them responsilbilities appropriate for their age. 
+4. Give them freedom to try new things, and the space to fail and make mistakes. Give them responsilbilities appropriate for their age. 
 #BR
-#5. Don't say no too often - frame things as positive alternatives: instead of "no running inside", say "running is for outside".
+5. Don't say no too often - frame things as positive alternatives: instead of "no running inside", say "running is for outside".
 #BR
-#6. Speak kindly about them to others - escpecially when they are listening 
+6. Speak kindly about them to others - escpecially when they are listening 
 #BR
-#7. Help them if they ask; don't if they don't - they are capable of asking for themselves.
+7. Help them if they ask; don't if they don't - they are capable of asking for themselves.
 #BR
-#It's all nice to say treat your child as if they were an adult, giving them freedoms and responsilbilities, however at times they are anything but this. When they're throwing a tantrum in the supermarket, trying to hit you or are consintly screaming, all you want is to tell them to be quiet, say no and bring down the wrath of displine onto them.  
-#To go beyond this is to understand <b>your child's behaviour is a result of their needs not being met. And they're trying to communicate through this to you</b>.
-#This could be discomfort like being hungry, tired, too hot, too cold or over stimulated. They could be feeling upset, lonely, frustrated or overwhelmed. There could be issues at childcare or school, or with another adult or child. There could be changes in their life - new siblings, divorce. Not being able to express or communicate themselves fully. All these things could be having a toll on their wellbeing, and they're trying to communicate this to you. 
-#WHen chiildren behave in a way that challenges us, they do so because they need our help, our guidance, our support or all three. They're not out to get us, or give us a hard time. <i>They are the ones having a hard time</i>.
+It's all nice to say 'treat your child as if they were an adult', giving them freedoms and responsilbilities, however at times they are anything but this. When they're throwing a tantrum in the supermarket, trying to hit you or are consintly screaming, all you want is to tell them to be quiet, say no and bring down the wrath of displine onto them.  
+
+To go beyond this is to understand <b>your child's behaviour is a result of their needs not being met. And they're trying to communicate through this to you</b>.
+
+This could be discomfort like being hungry, tired, too hot, too cold or over stimulated. They could be feeling upset, lonely, frustrated or overwhelmed. There could be issues at childcare or school, or with another adult or child. There could be changes in their life - new siblings, divorce. Not being able to express or communicate themselves fully. All these things could be having a toll on their wellbeing, and they're trying to communicate this to you. 
+
+WHen chiildren behave in a way that challenges us, they do so because they need our help, our guidance, our support or all three. They're not out to get us, or give us a hard time. <i>They are the ones having a hard time</i>.
 #BR
-#This shift from seeking to displine, shame, punish or distract the child away from these feelings, to trying to understand your child's needs and meeting them, requires us to change our behaviours and responses. 
-#Our goal is to understand what needs are underlying the behaviour and seeking to meet those needs. Instead of resorting to punishment and discipline. 
+
+This shift from seeking to displine, shame, punish or distract the child away from these feelings, to trying to understand your child's needs and meeting them, requires us to change our behaviours and responses. 
+
+Our goal is to understand what needs are underlying the behaviour and seeking to meet those needs. Instead of resorting to punishment and discipline. 
 #BR
-#This approach of nov-violent, non-discepline, attachment parenting does not mean anything goes. There are still boundaries and limits on what is acceptable and what is not. But instead of them being hard boundaries with DO NOT CROSS tape, you can communicate and work out the boundary as a team, helping the child understand why this limit is in place. When you approach things as a team, alot of conflict dissapears. Rather than parenting from the top-down, you can talk to your child and work out solutions together. Ask them what would help them stick to the limit you've put in place.
-#Involve them in process of thinking though what could be done about something. Walk through the different options with the intent of <b>listening</b> to what they have to say, instead of having your mind made up already.
+This approach of nov-violent, non-discepline, attachment parenting does not mean anything goes. There are still boundaries and limits on what is acceptable and what is not. But instead of them being hard boundaries with DO NOT CROSS tape, you can communicate and work out the boundary as a team, helping the child understand why this limit is in place. When you approach things as a team, alot of conflict dissapears. Rather than parenting from the top-down, you can talk to your child and work out solutions together. Ask them what would help them stick to the limit you've put in place.
+
+Involve them in process of thinking though what could be done about something. Walk through the different options with the intent of <b>listening</b> to what they have to say, instead of having your mind made up already.
 #HR
 #BR
 ##Extra challenging behaviours
 #BR
-#Your child is having a tantrum, this time they grab a glass and throw it on the floor. You might immediately respond with punishment - by shouting, by confiscating a toy or by shaming. Instead give them the benefit of the doubt and remember they are trying to communicate something to you. Maybe they know they get your attention when they go that extra distance and smash something. View their behaviour as a means of communication, and respond accordingly. Maybe you aren't giving them enough attention? Maybe they've tried to commicate something to you already but you aren't listening? Do you play into their rage when they go that extra distance? Why does this behaviour trigger you so much? Is their inner work you need to go through yourself? These are the questions we need to ask ourselves, not blindly resorting to punishment. 
-#It is when children are at their most challenged - and challenging - that they most need our reassurance and unconditional love. And although responding in this way takes practice, the effect on their lives, your family lives and the sphere of people around your child makes it well-worth it. 
+
+Your child is having a tantrum, this time they grab a glass and throw it on the floor. You might immediately respond with punishment - by shouting, by confiscating a toy or by shaming. Instead give them the benefit of the doubt and remember they are trying to communicate something to you. Maybe they know they get your attention when they go that extra distance and smash something. View their behaviour as a means of communication, and respond accordingly. Maybe you aren't giving them enough attention? Maybe they've tried to commicate something to you already but you aren't listening? Do you play into their rage when they go that extra distance? Why does this behaviour trigger you so much? Is their inner work you need to go through yourself? These are the questions we need to ask ourselves, not blindly resorting to punishment. 
+
+It is when children are at their most challenged - and challenging - that they most need our reassurance and unconditional love. And although responding in this way takes practice, the effect on their lives, your family lives and the sphere of people around your child makes it well-worth it. 
 #BR
 ##Unconditional Positive Regard
 #BR
-#Unconditional Positive Regard is one of the most important gifts we can give our children. Coined by the psychologist Carl Rogers, it's the act of when interacting with someone, we <b>choose</b> to accept and think the best of them, regardless of what they do. We see our child as inherently good, and their behaviour as simple them doing their best to meet their needs. When we do this, we lay a soild foundation for self-worth. We can parent them without trying to change them, giving them the freedom and emotional saftey to try new things, make mistakes and take risks. We show them that whatever they do, they are loved, important and good. Their self-worth is non-negotiable.  
-#Again this is hard when your child is being challenging and you're being triggered, but this is when they most need it. It puts you in a place of empathy and compassion, allowing you to handle the situation differently than if you hadn't choosen to accept and think the best of them. 
+
+Unconditional Positive Regard is one of the most important gifts we can give our children. Coined by the psychologist Carl Rogers, it's the act of when interacting with someone, we <b>choose</b> to accept and think the best of them, regardless of what they do. We see our child as inherently good, and their behaviour as simple them doing their best to meet their needs. When we do this, we lay a soild foundation for self-worth. We can parent them without trying to change them, giving them the freedom and emotional saftey to try new things, make mistakes and take risks. We show them that whatever they do, they are loved, important and good. Their self-worth is non-negotiable.  
+
+Again this is hard when your child is being challenging and you're being triggered, but this is when they most need it. It puts you in a place of empathy and compassion, allowing you to handle the situation differently than if you hadn't choosen to accept and think the best of them. 
 #HR
 #BR
 ##Playful parenting and challenging behaviour
-#Joyful interactions are at the core of developing a realtionship with your child. Being a playful parent pays dividends in their emotional development. While it can be easier to be playful when the child is in a good mood, being playful when they aren't can be very powerful. Deescalaing situations before they turn into full-blown conflicts, using connection and play to do so, is far more peaceful, powerful, easy and effective than meeting it with frustration, discipline, anger or lecturing. Although it takes practice to do so, it is well worth the effort. 
+
+Joyful interactions are at the core of developing a realtionship with your child. Being a playful parent pays dividends in their emotional development. While it can be easier to be playful when the child is in a good mood, being playful when they aren't can be very powerful. Deescalaing situations before they turn into full-blown conflicts, using connection and play to do so, is far more peaceful, powerful, easy and effective than meeting it with frustration, discipline, anger or lecturing. Although it takes practice to do so, it is well worth the effort. 
 #HR
 #BR
 ##Non violent communication (NVC)
-#Nonviolent communication holds that most conflicts between individuals or groups arise from miscommunication about their human needs due to coercive or manipulative language that aims to induce fear, guilt, shame, etc. These "violent" modes of communication, when used during a conflict, divert the attention of the participants away from clarifying their needs, their feelings, their perceptions, and their requests, thus perpetuating the conflict.
+
+Nonviolent communication holds that most conflicts between individuals or groups arise from miscommunication about their human needs due to coercive or manipulative language that aims to induce fear, guilt, shame, etc. These "violent" modes of communication, when used during a conflict, divert the attention of the participants away from clarifying their needs, their feelings, their perceptions, and their requests, thus perpetuating the conflict.
 #BR
 #There are for components to: 
 #BR
-#1. Observation: Facts that we are obeserving through what we are seeing, hearing and touching, seperate from meaning and significance. It discourages generalisations as this can come across as criticims to others and resist what is being said. Instead, focus on observations specific to that time and context. 
+1. Observation: Facts that we are obeserving through what we are seeing, hearing and touching, seperate from meaning and significance. It discourages generalisations as this can come across as criticims to others and resist what is being said. Instead, focus on observations specific to that time and context. 
 
 #HR
 #BR
 ##Using stories about your time as a child to create connection
-#Another way to deepen your relationship with your child is to tell stories of your time as a child. This althoughs them relate to you and see you as a child.  
-
-
-
-
-
-
-
+Another way to deepen your relationship with your child is to tell stories of your time as a child. This althoughs them relate to you and see you as a child.  
 
 Sites of Mutual Fufillment - drawing, going to the park (get exercise, get fresh air), - helps creating genuine interest in doing the acitivity & your getting your needs met whilst filling theirs, and deepening your connection with your child. 
 
