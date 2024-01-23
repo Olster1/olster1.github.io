@@ -1,4 +1,5 @@
 #define DEBUG_TIME_BLOCK()
+#include <stddef.h>
 #include "easy_types.h"
 #include "easy_array.h"
 #include "easy_unicode.h"
@@ -24,7 +25,7 @@ typedef enum {
 } SyntaxColor;
 
 
-static initFileState(FileState *state) {
+static void initFileState(FileState *state) {
 	state->contentsToWrite = initInfinteAlloc(u8);
 	state->tempHtmlEncoded = initInfinteAlloc(u8);
 	
@@ -108,7 +109,7 @@ static void writeHeader(FileState *state) {
 	char *text = "<!DOCTYPE html>\
 	<html lang=\"en\">\
 		<head>\
-		  <title>Oliver Marsh</title>\
+		  <title>Games Craft</title>\
 		  <meta charset=\"utf-8\">\
 		  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\
 		  <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\">\
@@ -136,8 +137,7 @@ static void writeNavBar(FileState *state) {
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
 	      <ul class=\"nav navbar-nav navbar-right\"  style=\"margin-top: 25px;\">\
 	        <li><a href=\"./index.html\">Articles</a></li>\
-	      	<li><a href=\"./index.html\">Games</a></li>\
-	      	<li><a href=\"./about.html\">About</a></li>\
+	      	<li><a href=\"./games_dojo.html\">Dojo</a></li>\
 	      </ul>\
 	    </div>\
 	  </div>\

@@ -1,3 +1,8 @@
+#if __APPLE__
+//NOTE: For directory stream 
+#include <dirent.h>
+#endif
+
 #define concat_withLength(a, aLength, b, bLength) concat_(a, aLength, b, bLength)
 #define concat(a, b) concat_(a, easyString_getSizeInBytes_utf8(a), b, easyString_getSizeInBytes_utf8(b))
 char *concat_(char *a, s32 lengthA, char *b, s32 lengthB) {
