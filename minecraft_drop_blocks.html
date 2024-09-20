@@ -2,9 +2,7 @@
 <div class="col-sm-10 col-md-12 col-lg-12">
 <div class="info-card">
 <h2>Drop Blocks</h2><br><p>
-In minecraft when you mine a block, it drops the block to pick up. </p>
-<br><p>
-These blocks have to respond to what blocks are around them: if you put a block ontop of them, they have to move out of the way. They also have to fall with gravity.</p>
+In minecraft when you mine a block, it drops the block to pick up. These blocks have to respond to what blocks are around them: if you put a block ontop of them, they have to move out of the way. They also have to fall with gravity.</p>
 <br><p>
 I thought about how to solve this and went about the easiest and simplest solution. Each update loop the pickup block checks if it's inside a block, it it is, find the closest free block around it. I only check a 3 x 3 x 3 square i.e. one block from the block they're on. If no free block is found, just try to move upward. In code it looks like this: </p>
 <br><div class="code-block-left ">float3 <span style="color: #CD950C;">findClosestFreePosition</span><span style="color: #A08563;">(</span>GameState *gameState, float3 startP, float3 defaultDir<span style="color: #A08563;">)</span> {
@@ -18,7 +16,7 @@ I thought about how to solve this and went about the easiest and simplest soluti
 <br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>x == <span style="color: #6B8E23;">0 </span>&& y == <span style="color: #6B8E23;">0 </span>&& z == <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span> {
 <br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Don't test the block we're in</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>continue;
 <br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
-<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>float3 offset = searchOffsets[i];
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>float3 offset = <span style="color: #CD950C;">make_float3</span><span style="color: #A08563;">(</span>x, y, z<span style="color: #A08563;">)</span>;
 <br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>float3 blockP = <span style="color: #CD950C;">plus_float3</span><span style="color: #A08563;">(</span>offset, startP_block<span style="color: #A08563;">)</span>;
 <br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>BlockChunkPartner blockPtr = <span style="color: #CD950C;">blockExists</span><span style="color: #A08563;">(</span>gameState, blockP.x, blockP.y, blockP.z, BLOCK_EXISTS_COLLISION<span style="color: #A08563;">)</span>;
 <br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>!blockPtr.block<span style="color: #A08563;">)</span> {
@@ -53,13 +51,10 @@ Now that we have 'findClosestFreePosition' we can use it in the pickup block upd
 <br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Integrate acceleration</span><br><span style='white-space: pre;'>    </span>e-&gt;dP = <span style="color: #CD950C;">plus_float3</span><span style="color: #A08563;">(</span>e-&gt;dP, <span style="color: #CD950C;">scale_float3</span><span style="color: #A08563;">(</span>gameState-&gt;dt, accelForFrame<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//NOTE: Already * by dt </span><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Apply drag</span><br><span style='white-space: pre;'>    </span>e-&gt;dP = <span style="color: #CD950C;">scale_float3</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0.95f, </span>e-&gt;dP<span style="color: #A08563;">)</span>;
 <br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Integrate velocity</span><br><span style='white-space: pre;'>    </span>e-&gt;T.pos = <span style="color: #CD950C;">plus_float3</span><span style="color: #A08563;">(</span>e-&gt;T.pos, <span style="color: #CD950C;">scale_float3</span><span style="color: #A08563;">(</span>gameState-&gt;dt, e-&gt;dP<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
 <br>}
-<br></div><br><p>
-<video controls="controls" width="800" height="600" name="Video Name"></p>
-<br><p>
-<source src="./images/dropBlocks.mov"></p>
-<br><p>
-</video></p>
-</div>
+<br></div><br><video controls="controls" width="800" height="600" type="video/webm" name="Drop Blocks">
+  <source src="./images/dropBlocks.webm">
+</video>
+</div><br><a target='_blank' href='https://github.com/Olster1/minecraft_clone'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the codebase here 👆</div></a><br><br></div>
 </div>
 </div>
 <br><br></div></body></html><script src='email.js'></script>

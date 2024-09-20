@@ -1,8 +1,7 @@
 #CARD
 ##Drop Blocks
 
-In minecraft when you mine a block, it drops the block to pick up. 
-These blocks have to respond to what blocks are around them: if you put a block ontop of them, they have to move out of the way. They also have to fall with gravity.
+In minecraft when you mine a block, it drops the block to pick up. These blocks have to respond to what blocks are around them: if you put a block ontop of them, they have to move out of the way. They also have to fall with gravity.
 
 I thought about how to solve this and went about the easiest and simplest solution. Each update loop the pickup block checks if it's inside a block, it it is, find the closest free block around it. I only check a 3 x 3 x 3 square i.e. one block from the block they're on. If no free block is found, just try to move upward. In code it looks like this: 
 
@@ -21,7 +20,7 @@ for(int z = -1; z <= 1; z++) {
                     continue;
                 } else {
        
-        float3 offset = searchOffsets[i];
+        float3 offset = make_float3(x, y, z);
 
         float3 blockP = plus_float3(offset, startP_block);
 
@@ -48,7 +47,6 @@ for(int z = -1; z <= 1; z++) {
 #HR
 
 ###Entity Update 
-
 Now that we have 'findClosestFreePosition' we can use it in the pickup block update function.
 
 #CODE 
@@ -80,7 +78,10 @@ void updatePickupBlock() {
         e->T.pos = plus_float3(e->T.pos, scale_float3(gameState->dt, e->dP));
 }
 #ENDCODE
-
-<video controls="controls" width="800" height="600" muted name="Drop Blocks">
-  <source src="./images/dropBlocks.mov">
+#HTML
+<video controls="controls" width="800" height="600" type="video/webm" name="Drop Blocks">
+  <source src="./images/dropBlocks.webm">
 </video>
+#ENDHTML
+
+#ANCHOR_IMPORTANT https://github.com/Olster1/minecraft_clone You can see the codebase here
