@@ -405,6 +405,7 @@ int main(int argc, char **args) {
 			printf("%s\n", filesToConvert.names[fileIndex]);
 
 			bool inCodeBlock = false;
+			bool inHtmlBlock = false;
 			bool wasNewLine = false;
 
 			int depthInFunction = 0;
@@ -416,7 +417,19 @@ int main(int argc, char **args) {
 				// printf("%s\n", at);
 				if(false) {
 					//NOTE(ollie): Just to make it look nicer with all else ifs
-
+				} else if(inHtmlBlock) {
+					if(stringsMatchNullN("#ENDHTML", at, 8)) {
+						inHtmlBlock = false;
+						at += 8;
+						writeEndCodeBlock(&state);
+						eatWhiteSpace(&at);
+						writeLineBreak(&state, 1);
+						wasNewLine = false;
+						depthInFunction = 0;
+					} else {
+						writeText_(&state, at, 1);
+						at++;
+					}
 				} else if(inCodeBlock) {
 					if(stringsMatchNullN("#ENDCODE", at, 8)) {
 						inCodeBlock = false;
@@ -427,8 +440,6 @@ int main(int argc, char **args) {
 						wasNewLine = false;
 						depthInFunction = 0;
 					} else {
-						
-
 						if(wasNewLine) {
 							eatWhiteSpace(&at);
 
@@ -641,6 +652,10 @@ int main(int argc, char **args) {
 					}
 				} else if(at[0] == '\r' || at[0] == '\n') {
 					writeLineBreak(&state, 1);
+					eatWhiteSpace(&at);
+				} else if(stringsMatchNullN("#HTML", at, 5)) {
+					inHtmlBlock = true;
+					at += 5;
 					eatWhiteSpace(&at);
 				} else if(stringsMatchNullN("#CODE", at, 5)) {
 					inCodeBlock = true;
