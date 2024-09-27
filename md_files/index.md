@@ -17,4 +17,7 @@
 #HR
 ####Graphics 
 <a href="./perspective-matrix-4-ways.html">OpenGL and Direct3D Perspective Matrices</a>
+#HR
+####Games 
+<a href="./solitaire.html">Solitaire</a>
 
