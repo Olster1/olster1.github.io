@@ -138,10 +138,8 @@ static void writeNavBar(FileState *state) {
 	      <ul class=\"nav navbar-nav navbar-right\"  style=\"margin-top: 25px;\">\
 	        <li><a href=\"./index.html\">Articles</a></li>\
 			<li><a href=\"./minecraft_blog.html\">Minecraft Blog</a></li>\
-			<li><a href=\"./adventure_game_blog.html\">Topdown Adventure Blog</a></li>\
 			<li><a href=\"./yoga_app.html\">Yoga App</a></li>\
 	      	<li><a href=\"./art.html\">Art</a></li>\
-			<li><a href=\"./homeschool.html\">Homeschool</a></li>\
 	      </ul>\
 	    </div>\
 	  </div>\
