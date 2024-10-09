@@ -22,4 +22,6 @@
 <a href="./solitaire.html">Solitaire</a>
 <a href="./adventure_game_blog.html">Adventure Game</a>
 
+<a href="./projects.html">Project Ideas List</a>
+
 
