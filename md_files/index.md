@@ -1,27 +1,11 @@
-#CARD
-#TITLE Articles
-#BR 
-####Direct 3d
-<a href="./direct3d_11_part1.html">Simple Direct3d: Part 1 - Create a Window</a>
-<a href="./direct3d_11_part2.html">Simple Direct3d: Part 2 - Creating a D3D Device and Device Context</a>
-<a href="./direct3d_11_part3.html">Simple Direct3d: Part 3 - Drawing a Colorful Triangle</a>
-<a href="./direct3d_11_part4.html">Simple Direct3d: Part 4 - Texturing our Triangle</a>
-<a href="./direct3d_11_part5.html">Simple Direct3d: Part 5 - Using a Constant Buffer</a>
-<a href="./direct3d_11_part6.html">Simple Direct3d: Part 6 - Timing your Game Loop and Animating the Quad</a>
+# Introducing Enchanted Vale
 
-#HR
-####Windows Games 
-<a href="./windows-exe-file-path.html">Get your .exe file path in Windows</a>
-<a href="./windows-keyboard-input.html">Windows Keyboard Input</a>
-<a href="./saving-players-save-file.html">Saving player’s save file to a safe location</a>
-#HR
-####Graphics 
-<a href="./perspective-matrix-4-ways.html">OpenGL and Direct3D Perspective Matrices</a>
-#HR
-####Games 
-<a href="./solitaire.html">Solitaire</a>
-<a href="./adventure_game_blog.html">Adventure Game</a>
+Enchanted Vale is an open-world voxel game set in a mesmerizing medieval land imbued with magic and wonder. Players are transported to a sprawling vale filled with ancient ruins, lush forests, and towering mountains, where every block can be destroyed, altered, or reshaped.
 
-<a href="./projects.html">Project Ideas List</a>
+At its core, Enchanted Vale features a custom-built physics engine that brings the voxel world to life. Structures crumble realistically, objects respond dynamically to player interactions, and environmental effects immerse players in a vivid, destructible environment. The game also employs cutting-edge ray casting technology to deliver stunning visuals, with realistic lighting, shadows, and reflections that enhance the magical atmosphere.
 
+Harness the power of elemental magic to reshape the world, craft powerful artifacts, and build your kingdom while exploring ancient dungeons and uncovering the vale’s deepest secrets. Mystical creatures, magical flora, and dynamic weather systems create an ever-evolving world that reacts to the player’s actions.
 
+Whether you delve into the mysteries of the vale, wage epic battles, or forge alliances to rebuild a crumbled realm, Enchanted Vale offers limitless possibilities in a breathtaking magical sandbox where every choice shapes the world.
+
+Coming soon to steam. Email: ollietheexplorer@gmail.com for more info.
