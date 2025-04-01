@@ -132,11 +132,12 @@ static void writeNavBar(FileState *state) {
 	        <span class=\"icon-bar\"></span>\
 	        <span class=\"icon-bar\"></span>\
 	      </button>\
-	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 3cm;\" src=\"./photos/logo.png\"></a>\
+	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 3cm;\" src=\"./photos/logo3.png\"></a>\
 	    </div>\
 	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
 	      <ul class=\"nav navbar-nav navbar-right\"  style=\"margin-top: 25px;\">\
-	        <li><a href=\"./articles.html\">Articles</a></li>\
+	        <li><a href=\"./games_dojo.html\">Games</a></li>\
+			<li><a href=\"./minecraft_blog.html\">Minecraft Articles</a></li>\
 	      </ul>\
 	    </div>\
 	  </div>\
@@ -831,7 +832,8 @@ int main(int argc, char **args) {
 			free(filesToConvert.names[fileIndex]);
 			free(shortName);
 		}
-				
+
+		printf("%s\n", "FINISHED");		
 	} else {
 		printf("%s\n", "You need to pass an input file & an output file name");
 	}
