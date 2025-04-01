@@ -1,0 +1,19 @@
+screen space to world space for both perspective and ortho camera
+
+compiler flags for msvc
+
+find exe path 
+
+perspective matrix for -z camera facing and +z camera facing - for both directX and openGL - total of 4 matrixes
+
+camera moving without quaternions 
+
+perspective matrix without tan function 
+
+build minecraft
+
+perlin noise applications
+
+build a text editor
+
+loading fonts - raster fonts and sdf fonts

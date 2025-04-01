@@ -1,0 +1,1 @@
+gcc -o main -Wno-pointer-sign -Wno-implicit-function-declaration main.c

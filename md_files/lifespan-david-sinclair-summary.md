@@ -1,0 +1,22 @@
+#CARD
+#TITLE Lifespan by David Sinclair Summary
+#CARD
+#'Lifespan' by David Sinclair outlines a very compelling theory for aging.  I thought I'd outline it (in a very rough way) as i think it's a very good framework to think about age related diseases (which turn out don't have to occur when your older).
+#BR
+#Our body is made up of cells, & in each cell there is our genome (our DNA).  In every cell, there is the same genome. It doesn't matter what type of cell, it still contains the same genome.  The genome is wound up in 'packets' called chromosomes.  What differentiates a eye cell from a liver cell is what parts of our DNA is 'silenced' & which parts aren't.  This is done by covering up particular parts of the DNA depending on what type of cell it is, so it can't be read by 'worker' proteins.  This silenced genome is what's referred to as the epi-genome. 
+#BR
+#When our cells replicate, which is happening all the time, the whole DNA has to be read to copy it.  This means uncovering the silenced parts.   The DNA is then copied, & the proteins that were silencing the DNA, go back to covering the right parts back up. This same process happens when DNA is repaired from damage by free radicals & things like x-rays & cosmic rays. The DNA is unwound, repaired, then wound back up.
+#BR
+#However when the silencing proteins go back to where they were, they can be slightly off. That is, they might not go back to their exact location, so the part of the DNA they were silencing, is slightly different.  This is a very small error.  However as time goes by, this small loss in information accumulates. Reducing the cells original identity as a liver cell or eye cell & becomes a kind of 'random' cell that has lossed it's identity.  This is a cancer cell or zombie cell or a cell that just doesn't work.   
+#BR
+#This is the process of aging.  A loss of 'analog' information, which over time accumulates into what we see as age related conditions: cancer, Alzheimer's, arthritis, organ failures, mitochondrial dysfunction etc. This has been shown in experiments with mice, where they genetically modify the DNA, so it breaks apart when a drug is introduced.  The process does nothing but break the DNA apart. Which the cells then put back together.  However this mouse ages twice as fast as normal, showing all age related conditions.  This measure of aging is known as the Horvath clock (or epigenetic clock). 
+#BR
+#One question is 'if it's analog information, isn't there some way to put back the silencing genes in the right place?' and this does seem to be the case.  There is something storing the original information of the epi-genome, to reconstruct the original cell, although it's still a mystery of where this information is stored. But this fact is exploited by stem cell treatments, where stem cells injected into areas, take the form of 'stronger identity' cells then their counterparts.  There have also been experiments conducted where a mice's visual cortex after being crushed, can be reconstructed by a specific stem cell treatment.  I.e. reintroducing the lossed information of the cells identities. 
+#BR
+#Right now age related illnesses are researched & treated separately, but the emerging picture seems to be that they are linked by an underlying cause, which is the process of ageing itself.  
+#BR
+#One ancient biological pathway that all life has, is an ancient repair mechanism which is is referred to as the 'sirtuin' genes.  These genes produce sirtuin proteins which are the workers responsible for silencing parts of our genome.  It turns out, if you have more sirtuin genes, so they produce more of these proteins, the parts of the DNA that were silenced can be 'remembered' better then with less. So information is lossed at a slower rate.  This process has been linked to why certain groups of people, with poor lifestyle choices (like smoking & drinking), still live over 100.  There genome has more of these genes, then average, so there cells age at a slower rate. 
+#BR
+#What's more, is that this pathway (& others related to it like mTor) can be 'activated', which in turns slows our ageing process.  And these are things like: exercise, intermittent fasting, cold & hot therapies (like cold showers, ice baths & saunas) & protein fasting.  Drugs such as NAD+/NMN & resevertrol also act on this pathway helping it 'perform' better. 
+#BR
+#I highly recommend the book 'Lifespan' for more in-depth (& more accurate recount) of this research, & it's implications for health & future society.

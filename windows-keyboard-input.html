@@ -1,0 +1,749 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Games Craft</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 3cm;" src="./photos/logo.png"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./articles.html">Articles</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<h1>Windows Keyboard input</h1></div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<p>
+Getting input from the player is the crucial for a game; without it it's not a game, it's a movie. So how do we get input from the user and what's the best way to keep track of it? </p>
+<br><p>
+In this article we're going to walk through getting input from the user's keyboard on Windows. We'll also go through how to store it and use it in our game. Let's Go!</p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/tree/main/windows_keyboard_input'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see all the code for this article here  👆</div></a><br><br><hr><h2>Contents</h2><br><h4><a href='#id0'>Message Callback</a> </h4><br><h4><a href='#id1'>WM_KEYDOWN and WM_KEYUP messages</a> </h4><br><h4><a href='#id2'>Virtual Key Codes</a></h4><br><h4><a href='#id3'>Making an enum value for each key</a></h4><br><h4><a href='#id4'>Adding KeyPressed and KeyReleased</a></h4><br><h4><a href='#id5'>Multiple Key Presses and Releases Per Frame</a></h4><br><h4><a href='#id6'>Handling WM_SYSKEYDOWN and WM_SYSKEYUP</a></h4><br><h4><a href='#id7'>Using lparam instead of previous <i>isDown</i> value</a></h4><br><h4><a href='#id8'>Mouse Input</a></h4><br><h4><a href='#id9'>Get Cursor Coordinates</a></h4><br><h4><a href='#id10'>Platform Input Struct</a></h4><br><h4><a href='#id11'>Collecting ASCI text input</a></h4><br><h4><a href='#id12'>Handling Backspace and Arrow keys based on Key Repeat Rate</a></h4><br><h4><a href='#id13'>Using our command buffer in the game loop</a></h4><br><h4><a href='#id14'>Handling Utf-16 Unicode Text Input</a></h4><br><hr><h2><span id='id0'>Message Callback</span></h2><br><p>
+The core of our input is in the WndProc message callback. This is the way the OS sends our program messages like if the user clicks the red cross button, resizes the window or presses buttons. It looks like this: </p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br><br></div><br><a target='_blank' href='https://docs.microsoft.com/en-us/windows/win32/learnwin32/writing-the-window-procedure'> You can read more about this function here.   👆</a><br><br><p>
+When we create our window class we give it this function to send all messages through. Then when we process our messages in our game loop using <i>Peek Message</i>, our function will be called when we call <i>DispatchMessage</i>. <a href="./create_direct_x_11.html">This tutorial walks you through doing this.</a> </p>
+<br><a target='_blank' href='https://github.com/Olster1/directX11_tutorial/blob/main/lesson1/main.cpp'> You can see what our basic program would look like using handling OS messages.  👆</a><br><br><hr><h2><span id='id1'>WM_KEYDOWN and WM_KEYUP messages</span></h2><br><p>
+We don't do anything yet with the messages we recieve, we just pass them to the default handler. We going to want to change that! </p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: handle our keyboard input</span><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><p>
+We're also going to handle messages sent when the user closes the app. </p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_CLOSE || msg == WM_DESTROY<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We handle this message in our game loop</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">PostQuitMessage</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: handle our keyboard input</span><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><p>
+Using the message type, we can see what messages the OS has sent us. The two messages we want to handle is the WM_KEYDOWN and WM_KEYUP; these are messages for when the user presses, holds and releases a button. Using just these messages the user could control a character.  </p>
+<br><hr><h2><span id='id2'>Virtual Key Codes</span></h2><br><p>
+We now know when a user presses a key, next we need to know which key it was. This is called the <i>Virtual key code</i>. It's virtual because depending on the mapping of the user's keyboard it might not be the actual key they pressed, but the mapped value. The Virtual key code or VK code is the <i>wparam</i> value passed into the function. </p>
+<br><a target='_blank' href='https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes'> You can see all the VK codes corresponding to the keys here 👆</a><br><br><p>
+Let's start with the Up, Down, Left and Right arrows.</p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: handle our keyboard input</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_UP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><p>
+Whenever the user presses, holds or releases an Arrow key we'll get a message here. Let's store this so the game logic can use it. Since the message callback function is isolated from our main function and we can't pass any custom parameters into it, we have to use a <b>global variable</b> store them. It would look like this:</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">bool </span>global_keyDownStates[4];   
+<br><br>LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Handle our messages </span><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// ...  </span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>}
+<br><br></div><br><p>
+We're using a bool to say whether the key is down or not, and each key mapped to an index in the array. </p>
+<br><p>
+In our callback we will set the values of this array. </p>
+<br><div class="code-block-left "><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">bool </span>global_keyDownStates[4];  
+<br><br>LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyDown <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: handle our keyboard input</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_UP<span style="color: #A08563;">)</span> {        
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[0] = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[1] = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[2] = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[3] = keyDown;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><p>
+When the user press the up arrow key a WM_KEYUP message will be sent. We then set the array value to true. It will stay true until the user releases the key, in that case a WM_KEYUP message will be sent and the value will be set to false. Awesome!</p>
+<br><p>
+In our game loop we could use this now to control a character:</p>
+<br><div class="code-block-left "><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span>MSG message;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">PeekMessage</span><span style="color: #A08563;">(</span>&message, <span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span>PM_REMOVE<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span>{	
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>message.message == WM_QUIT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Exit our game loop</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>running = false;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">TranslateMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">DispatchMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//NOTE: our message callback is handled here</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Use our global array to access the key down states </span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>global_keyDownStates[0]<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Move Character forward</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>global_keyDownStates[2]<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Move Character left</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>global_keyDownStates[3]<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Move Character right</span><br><span style='white-space: pre;'>    </span>}
+<br>}
+<br><br></div><br><hr><h2><span id='id3'>Making an enum value for each key</span></h2><br><p>
+To make it easier to read and for us to less likely make a mistake, instead of using the array index directly, we'll make a enum value for each key we want to use:</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">enum </span>PlatformKeyType {
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_UP,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_DOWN,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_LEFT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_RIGHT
+<br>};
+<br></div><br><p>
+Then in our message loop we can use these instead of array indexes.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">bool </span>global_keyDownStates[4];  
+<br><br>LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyDown <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: handle our keyboard input</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_UP<span style="color: #A08563;">)</span> {        
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_KEY_UP] = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_KEY_DOWN] = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_KEY_LEFT] = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_KEY_RIGHT] = keyDown;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><p>
+Great! If all our game wanted was whether the key was up or down, say a racing game, this would be it. We would just handle more of the keys we wanted in our callback. So we don't have to expand the global array each time we add a new key, we will make it based of the size of the number of enums. </p>
+<br><div class="code-block-left "><span style="color: #CD950C;">enum </span>PlatformKeyType {
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_UP,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_DOWN,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_LEFT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_RIGHT,
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Everthing before here</span><br><span style='white-space: pre;'>    </span>PLATFORM_KEY_TOTAL_COUNT
+<br>};
+<br><br><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">bool </span>global_keyDownStates[PLATFORM_KEY_TOTAL_COUNT];  
+<br><br></div><br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/01%20version%20-%20just%20down%20or%20up/main.cpp'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point. 👆</div></a><br><br><hr><h2><span id='id4'>Adding KeyPressed and KeyReleased</span></h2><br><p>
+If we're not making a racing game, we're going to need the ability to see when the key was also pressed (true just on the frame the key is pressed) and released (true just on the frame when the user releases the key).</p>
+<br><p>
+To keep track of these two extra values, we'll store a struct per key in the array instead of just the bool.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">struct </span>PlatformKeyState {
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>isDown;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>wasPressed;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>wasReleased;
+<br>};
+<br><br><span style="color: #CD950C;">static </span>PlatformKeyState global_keyDownStates[PLATFORM_KEY_TOTAL_COUNT];  
+<br><br></div><br><p>
+In our message loop we now have to set these values:</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: We've added the z and x key, also a null type</span><br><span style="color: #CD950C;">enum </span>PlatformKeyType {
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_NULL,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_UP,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_DOWN,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_LEFT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_RIGHT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_Z,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_X,
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Everthing before here</span><br><span style='white-space: pre;'>    </span>PLATFORM_KEY_TOTAL_COUNT
+<br>};
+<br><br><span style="color: #CD950C;">static </span>PlatformKeyState global_keyDownStates[PLATFORM_KEY_TOTAL_COUNT];  
+<br><br>LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyDown <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>WPARAM vk_code = wparam;    	
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>PlatformKeyType keyType = PLATFORM_KEY_NULL; 
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: match our internal key names to the vk code</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_UP<span style="color: #A08563;">)</span> { 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_UP;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_DOWN;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_LEFT;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_RIGHT;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'Z'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_Z;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'X'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_X;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Key pressed, key down and key release events  </span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>keyType != PLATFORM_KEY_NULL<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We can use the last isDown state to see if it is a key press and key release</span><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Key press</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].wasPressed <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>keyDown && 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>!global_keyDownStates[keyType].isDown<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: key release</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].wasReleased <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>!keyDown && 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].isDown<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: set is down</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].isDown = keyDown;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br><br></div><br><p>
+We use the last down state of the button to see if the key was up or down previously to this message, to find whether the message is a key press or key release.</p>
+<br><p>
+You'll see the letter VK codes are the uppercase character value of it. </p>
+<br><p>
+Now in the game code we can see whether a key was pressed and released, not just is down. This is handy for example, if you play as a wizard in your game and only want the player to cast a spell when they press the z key and not keep casting a spell while the key is down. </p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: The Game Loop</span><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Clear the key pressed and released so we only ever have it once per frame</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; PLATFORM_KEY_TOTAL_COUNT; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[i].wasPressed = false;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[i].wasReleased = false;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>MSG message;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">PeekMessage</span><span style="color: #A08563;">(</span>&message, <span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span>PM_REMOVE<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>message.message == WM_QUIT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Exit our game loop</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>running = false;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">TranslateMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">DispatchMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//NOTE: our message callback is handled here</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Use our global array to access the key pressed state </span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>global_keyDownStates[PLATFORM_KEY_Z].wasPressed<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">castSpell</span><span style="color: #A08563;">(</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br>}
+<br><br></div><br><p>
+We're now succesfully handling pressed and released key events!</p>
+<br><p>
+You'll see we also set the <i>wasPressed</i> and <i>wasReleased</i> state to false at the <b>start of each frame before we process the messages</b>. This is because we only ever want the <i>wasPressed</i> and <i>wasReleased</i> value valid for one frame; if we don't clear the array and rely on a second WM_KEYDOWN message to set the values to false, the <i>wasPressed</i> value will be true for more than one frame (and a lot more) due to the repeat delay Windows and other Operating Systems use. The second message of a key being down won't come straight away but after a short interval.   </p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/02%20version%20-%20down%2C%20pressed%2C%20released/main.cpp'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id5'>Multiple Key Presses and Releases Per Frame</span></h2><br><p>
+You might have noticed a caveat with our method. Since we process all messages since the last message loop at once, a user might have pressed the key twice since last frame. That means we would get a WM_KEYDOWN message, then a WM_KEYUP message then another WM_KEYDOWN message. But when we process the messages for that frame, we wouldn't know this since only the last message is relfected in our keystate for that frame[1]: we would just know in the frame that the key was pressed and is down, not that is was pressed and released before that. </p>
+<br><p>
+If the game is running at 60fps or 30fps this might not be a problem since the user and the keyboard has to register more than one key event in less than 0.016seconds. However if it is an esport game using a keyboard with a high scan rate [2] or a frame lags behind by a signficant amount we would want to take this into consideration. Instead of storing a bool for <i>wasPressed</i> and <i>wasReleased</i>, we're going to store an integer. </p>
+<br><div class="code-block-left "><span style="color: #CD950C;">struct </span>PlatformKeyState {
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>isDown;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>pressedCount;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>releasedCount;
+<br>};
+<br><br></div><br><p>
+At the start of each frame we're going to clear the pressed and released count for the last frame so we know we're starting from a clean slate. Let's do that.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: The Game Loop</span><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Clear the key pressed and released count before processing our messages</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; PLATFORM_KEY_TOTAL_COUNT; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[i].pressedCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[i].releasedCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>MSG message;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">PeekMessage</span><span style="color: #A08563;">(</span>&message, <span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span>PM_REMOVE<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span>{	
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>message.message == WM_QUIT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Exit our game loop</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>running = false;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">TranslateMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">DispatchMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//NOTE: our message callback is handled here</span><br><span style='white-space: pre;'>    </span>}
+<br>}
+<br><br></div><br><p>
+Now in our message callback we'll increment the count when we get a key press and key release.</p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN || msg == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyDown <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>msg == WM_KEYDOWN<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>WPARAM vk_code = wparam;    	
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>PlatformKeyType keyType = PLATFORM_KEY_NULL; 
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: match our internal key names to the vk code</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_UP<span style="color: #A08563;">)</span> { 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_UP;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_DOWN;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_LEFT;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_RIGHT;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'Z'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_Z;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'X'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_X;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Key pressed, is down and release events  </span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>keyType != PLATFORM_KEY_NULL<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>wasPressed <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>keyDown && !global_keyDownStates[keyType].isDown<span style="color: #A08563;">)</span> ? <span style="color: #6B8E23;">1 </span>: <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>wasReleased <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>!keyDown && global_keyDownStates[keyType].isDown<span style="color: #A08563;">)</span> ? <span style="color: #6B8E23;">1 </span>: <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].pressedCount += wasPressed;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].releasedCount += wasReleased;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].isDown = keyDown;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br><br></div><br><p>
+Now in the game code we can use the number of key presses instead of just a boolean. </p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: The Game Loop</span><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Clear the key pressed and released count before processing our messages</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; PLATFORM_KEY_TOTAL_COUNT; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[i].pressedCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[i].releasedCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>MSG message;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">PeekMessage</span><span style="color: #A08563;">(</span>&message, <span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span>PM_REMOVE<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span>{	
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>message.message == WM_QUIT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Exit our game loop</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>running = false;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">TranslateMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">DispatchMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//NOTE: our message callback is handled here</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Cast the spell the number of times the user pressed the key in the last frame</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; global_keyDownStates[PLATFORM_KEY_Z].pressedCount; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">castSpell</span><span style="color: #A08563;">(</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br>}
+<br><br></div><br><p>
+We're now successfully handling multiple key press and releases per frame. To finish off key input we'll cover two more quick house keeping things. </p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/03%20version%20-%20multiple%20key%20presses%20and%20releases%20per%20frame/main.cpp'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id6'>Handling WM_SYSKEYDOWN and WM_SYSKEYUP</span></h2><br><p>
+We are also going to handle two other message types: WM_SYSKEYUP and WM_SYSKEYDOWN. This is the same as WM_KEYDOWN and WM_KEYUP but sent instead when the user is holding the ALT key down aswell. Since we would do any key modifiers ourself in our program, we'll handle both types of messages in the same way, irrespective of whether the user is holding ALT down.</p>
+<br><p>
+Let's put them in.</p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
+<br><span style='white-space: pre;'>    </span>message == WM_KEYDOWN || message == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: handle our keyboard input</span><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><hr><h2><span id='id7'>Using lparam instead of previous <i>isDown</i> value</span>  </h2><br><p>
+The current way we detect key presses is to rely on the previous <i>isDown</i> value to see if the incoming WM_KEYDOWN message is a representing a key press or just a repeated key down. If we like we don't have to rely on our previous key down state, as the incoming message comes with this in the lparam value. Specifically the 30th bit in the value is 1 if the key was down before the message is sent, or it is zero if the key was up. And the 30th bit is whether the key is up (value of 1) or down (value of 0). This is just a different way of doing it and provides no extra benefits.</p>
+<br><a target='_blank' href='https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keydown'> You can read more about the message WM_KEYDOWN here and what the incoming parameters correspond to 👆</a><br><br><a target='_blank' href='https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keyup'> Same but for WM_KEYUP 👆</a><br><br><p>
+Our message callback would now look like this. </p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
+<br><span style='white-space: pre;'>    </span>message == WM_KEYDOWN || message == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyWasDown <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span><span style="color: #A08563;">(</span>lparam <span style="color: #CD950C;">& </span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">1 </span>&lt;&lt; <span style="color: #6B8E23;">30</span><span style="color: #A08563;">)</span><span style="color: #A08563;">)</span> == <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyIsDown =   <span style="color: #CD950C;">!</span><span style="color: #A08563;">(</span>lparam <span style="color: #CD950C;">& </span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">1 </span>&lt;&lt; <span style="color: #6B8E23;">31</span><span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>WPARAM vk_code = wparam;    	
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>PlatformKeyType keyType = PLATFORM_KEY_NULL; 
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: match our internal key names to the vk code</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_UP<span style="color: #A08563;">)</span> { 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_UP;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_DOWN;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_LEFT;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_RIGHT;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'Z'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_Z;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'X'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_X;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Key pressed, is down and release events  </span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>keyType != PLATFORM_KEY_NULL<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>wasPressed <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>keyIsDown && !keyWasDown<span style="color: #A08563;">)</span> ? <span style="color: #6B8E23;">1 </span>: <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>wasReleased <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>!keyIsDown<span style="color: #A08563;">)</span> ? <span style="color: #6B8E23;">1 </span>: <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].pressedCount += wasPressed;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].releasedCount += wasReleased;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[keyType].isDown = keyIsDown;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br></div><br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/04%20version%20-%20using%20lparam%20value%20and%20WM_SYSKEY%20messages/main.cpp'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id8'>Mouse Input</span></h2><br><p>
+Now that we've got our key input the next thing we want to do is handle mouse input. We're going to handle it similar to our key input, we just have to handle different messages: WM_LBUTTONDOWN, WM_LBUTTONUP, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_MOUSEWHEEL and WM_MOUSEHWHEEL. Let's do this!</p>
+<br><p>
+First we'll add some extra key states to our enum. And two float values to store the scroll value.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">enum </span>PlatformKeyType {
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_NULL,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_UP,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_DOWN,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_LEFT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_RIGHT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_Z,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_X,
+<br><br><span style='white-space: pre;'>    </span>PLATFORM_MOUSE_LEFT_BUTTON,
+<br><span style='white-space: pre;'>    </span>PLATFORM_MOUSE_RIGHT_BUTTON,
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Everthing before here</span><br><span style='white-space: pre;'>    </span>PLATFORM_KEY_TOTAL_COUNT
+<br>};
+<br><br><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">float </span>global_mouseScrollY;
+<br><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">float </span>global_mouseScrollX;
+<br><br></div><br><p>
+Now in our message callback we will set the values.</p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_LBUTTONDOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>!global_keyDownStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_LEFT_BUTTON].pressedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown = true;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_LBUTTONUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_LEFT_BUTTON].releasedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown = false;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_RBUTTONDOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>!global_keyDownStates[PLATFORM_MOUSE_RIGHT_BUTTON].isDown<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_RIGHT_BUTTON].pressedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_RIGHT_BUTTON].isDown = true;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_RBUTTONUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_RIGHT_BUTTON].releasedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_keyDownStates[PLATFORM_MOUSE_RIGHT_BUTTON].isDown = false;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_MOUSEWHEEL<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We use the HIWORD macro defined in windows.h to get the high 16 bits</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>short wheel_delta = <span style="color: #CD950C;">HIWORD</span><span style="color: #A08563;">(</span>wparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_mouseScrollY <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #A08563;">)</span>wheel_delta;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_MOUSEHWHEEL<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We use the HIWORD macro defined in windows.h to get the high 16 bits</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>short wheel_delta = <span style="color: #CD950C;">HIWORD</span><span style="color: #A08563;">(</span>wparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_mouseScrollX <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #A08563;">)</span>wheel_delta;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
+<br><span style='white-space: pre;'>    </span>message == WM_KEYDOWN || message == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Handling our key presses here </span><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//....</span><br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = <span style="color: #CD950C;">DefWindowProcW</span><span style="color: #A08563;">(</span>hwnd, msg, wparam, lparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>} 
+<br><br><br></div><br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/main/windows_keyboard_input/05%20version%20-%20mouse%20input/main.cpp'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id9'>Get Cursor Coordinates</span></h2><br><p>
+Great, we're handling mouse input. The last thing to fully handle the mouse is to retrieve the x, y coordinates of it. There isn't a message for this, we just query it each frame in our game loop. The code do this looks like this:</p>
+<br><div class="code-block-left ">POINT mouse;
+<br><span style="color: #CD950C;">GetCursorPos</span><span style="color: #A08563;">(</span>&mouse<span style="color: #A08563;">)</span>;
+<br><span style="color: #7D7D7D;">//NOTE: hwnd is the window handle passed into our WinMain function</span><br><span style="color: #CD950C;">ScreenToClient</span><span style="color: #A08563;">(</span>hwnd, &mouse<span style="color: #A08563;">)</span>;
+<br><span style="color: #6B8E23;">float </span>mouseX <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>mouse.x<span style="color: #A08563;">)</span>;
+<br><span style="color: #6B8E23;">float </span>mouseY <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>mouse.y<span style="color: #A08563;">)</span>;
+<br><br></div><br><p>
+In the game loop we'll put it after our message loop. </p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: The Game Loop</span><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//... other code here</span><br><br><span style='white-space: pre;'>    </span>MSG message;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span><span style="color: #CD950C;">PeekMessage</span><span style="color: #A08563;">(</span>&message, <span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span>PM_REMOVE<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span>{	
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>message.message == WM_QUIT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Exit our game loop</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>running = false;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">TranslateMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">DispatchMessage</span><span style="color: #A08563;">(</span>&message<span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//NOTE: our message callback is handled here</span><br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: get the mouse location</span><br><span style='white-space: pre;'>    </span>POINT mouse;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">GetCursorPos</span><span style="color: #A08563;">(</span>&mouse<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: hwnd is the window handle passed into our WinMain function</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">ScreenToClient</span><span style="color: #A08563;">(</span>hwnd, &mouse<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseX <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>mouse.x<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseY <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>mouse.y<span style="color: #A08563;">)</span>;
+<br><br>}
+<br><br></div><br><p>
+GetCursorPos retrieves the mouse location relative to the computer screen with the origin in the top left corner. We then use ScreenToClient to map the coordinates to be relative to the top left corner of our window.</p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/ed64686f331050411297dc0d5ca7a34e3b5f8346/windows_keyboard_input/06%20version%20-%20mouse%20position/main.cpp#L178'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id10'>Platform Input Struct</span></h2><br><p>
+Well done, we did it. We're handling key input, mouse input and cursor location. To clean things up, instead of having multiple global variables, let's just put all the input into one struct.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">struct </span>PlatformInputState {
+<br><br><span style='white-space: pre;'>    </span>PlatformKeyState keyStates[PLATFORM_KEY_TOTAL_COUNT]; 
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Mouse data</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseX;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseY;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseScrollX;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseScrollY;
+<br>};
+<br><br><span style="color: #CD950C;">static </span>PlatformInputState global_platformInput;
+<br><br></div><br><p>
+We'll then change our code to use this inputState instead of the seperate global variables. It's all the same as before just now accessing the array and mouseScroll values from the PlatformStruct. Our message callback will look like this.</p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_LBUTTONDOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>!global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].pressedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown = true;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_LBUTTONUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].releasedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_LEFT_BUTTON].isDown = false;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_RBUTTONDOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>!global_platformInput.keyStates[PLATFORM_MOUSE_RIGHT_BUTTON].isDown<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_RIGHT_BUTTON].pressedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_RIGHT_BUTTON].isDown = true;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_RBUTTONUP<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_RIGHT_BUTTON].releasedCount++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[PLATFORM_MOUSE_RIGHT_BUTTON].isDown = false;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_MOUSEWHEEL<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We use the HIWORD macro defined in windows.h to get the high 16 bits</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>short wheel_delta = <span style="color: #CD950C;">HIWORD</span><span style="color: #A08563;">(</span>wparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.mouseScrollY <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #A08563;">)</span>wheel_delta;
+<br><br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_MOUSEHWHEEL<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We use the HIWORD macro defined in windows.h to get the high 16 bits</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>short wheel_delta = <span style="color: #CD950C;">HIWORD</span><span style="color: #A08563;">(</span>wparam<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.mouseScrollX <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #A08563;">)</span>wheel_delta;
+<br><br><span style='white-space: pre;'>    </span>} 
+<br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//rest of our messages ...</span><br><br></div><br><p>
+And our mouse position will use this as well to store it's values.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//In our game loop</span><br><br><span style="color: #7D7D7D;">//NOTE: get the mouse location</span><br>POINT mouse;
+<br><span style="color: #CD950C;">GetCursorPos</span><span style="color: #A08563;">(</span>&mouse<span style="color: #A08563;">)</span>;
+<br><span style="color: #7D7D7D;">//NOTE: hwnd is the window handle passed into our WinMain function</span><br><span style="color: #CD950C;">ScreenToClient</span><span style="color: #A08563;">(</span>hwnd, &mouse<span style="color: #A08563;">)</span>;
+<br>global_platformInput.mouseX <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>mouse.x<span style="color: #A08563;">)</span>;
+<br>global_platformInput.mouseY <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>mouse.y<span style="color: #A08563;">)</span>;
+<br><br></div><br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/ed64686f331050411297dc0d5ca7a34e3b5f8346/windows_keyboard_input/07%20version%20-%20using%20platform%20struct/main.cpp#L29'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id11'>Creating a character buffer for text input</span></h2><br><p>
+In a game you might want an actual string of characters that a user typed like entering in their profile name or entering commands into the in-game console. For this you want to handle the messages a bit different for three reasons:</p>
+<br><p>
+1. So it obeys the keyboard repeat functionality (if you just used the <i>isDown</i> for a key, it would spew out be very hard to control the number of letters coming out because it's just down every frame). </p>
+<br><p>
+2. To handle unicode characters - virtual key codes don't contain unicode </p>
+<br><p>
+3. For the OS to handle Upper case and Lower case for us</p>
+<br><p>
+To do this we use the WM_CHAR message. Each time we get this message we want to do soemthing to use these characters in our game code.</p>
+<br><p>
+We'll store the characters that come in each frame into a buffer stored in our PlatformInputState.</p>
+<br><div class="code-block-left "><span style="color: #DAB98F;">#define </span>PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES <span style="color: #6B8E23;">256
+</span><br><br><span style="color: #CD950C;">struct </span>PlatformInputState {
+<br><br><span style='white-space: pre;'>    </span>PlatformKeyState keyStates[PLATFORM_KEY_TOTAL_COUNT]; 
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Mouse data</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseX;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseY;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseScrollX;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseScrollY;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Text Input</span><br><span style='white-space: pre;'>    </span>uint8_t textInput_utf8[PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES];
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>textInput_bytesUsed;
+<br>};
+<br><br><span style="color: #CD950C;">static </span>PlatformInputState global_platformInput;
+<br><br></div><br><p>
+Then in our message loop we'll handle the WM_CHAR message.</p>
+<br><div class="code-block-left ">LRESULT CALLBACK <span style="color: #CD950C;">WndProc</span><span style="color: #A08563;">(</span>HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>LRESULT result = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_CHAR<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Asci characters have a one to one mapping from the utf-16 so we can just cast the value to get the asci character.</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>uint8_t asci_character <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>uint8_t<span style="color: #A08563;">)</span>wparam;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// //NOTE: See if we can still fit the character in our buffer. We don't do &lt;= to the max buffer size since we want to keep one character to create a null terminated string.</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span><span style="color: #A08563;">(</span>global_platformInput.textInput_bytesUsed + <span style="color: #6B8E23;">1</span><span style="color: #A08563;">)</span> &lt; PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Add the character to the buffer</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed++] = asci_character; 
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Make the string null terminated</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>global_platformInput.textInput_bytesUsed &lt; PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed] = '\0';
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span>}
+<br><br>} <span style="color: #CD950C;">else </span><span style="color: #7D7D7D;">//... rest of our messages</span><br><br><br><br></div><br><p>
+We get the character code from the wparam. This is a utf-16 encoded character. We are going to handle just asci characters so we don't need to do anything special to decode them - we can literally just cast them as a 1 byte character. Later we do handle unicode characters but for now just asci. We then see if the character fits in our buffer for this frame. If so, we increment the size of our buffer and put a null terminating character at the end to make sure anyone using this as a null terminated string will be ok.    </p>
+<br><p>
+At the start of each frame we'll clear the buffer to empty by setting the size to zero and putting a null terminator character at the start.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: The Game Loop</span><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Clear the input text buffer to empty</span><br><span style='white-space: pre;'>    </span>global_platformInput.textInput_bytesUsed = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span>global_platformInput.textInput_utf8[0] = '\0';
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Clear the key pressed and released count before processing our messages</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; PLATFORM_KEY_TOTAL_COUNT; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[i].pressedCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyStates[i].releasedCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span>}
+<br><br></div><br><p>
+Awesome! We're now gathering character input from the user. We could make a text editor with this, or use it for in game console or player text input. </p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/08%20version%20-%20handling%20text%20input%20asci/main.cpp#L57-L70'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id12'>Handling Backspace and Cursor movements based on Key Repeat rate</span> </h2><br><p>
+The last thing to finish off is to gather keys if the user is trying to edit the text input string. If the user wants to move the cursor with the arrow keys, we want them to follow the same keyboard repeat rate as the text input. To do this we want to to handle them seperately from our main keyboard input. We'll create a buffer of keyboard movements, along with the backspace key for the program to process on it's own.  We'll add a new Key enum for backspace.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">enum </span>PlatformKeyType {
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_NULL,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_UP,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_DOWN,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_LEFT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_RIGHT,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_Z,
+<br><span style='white-space: pre;'>    </span>PLATFORM_KEY_X,
+<br><br><span style='white-space: pre;'>    </span>PLATFORM_KEY_BACKSPACE,
+<br><br><span style='white-space: pre;'>    </span>PLATFORM_MOUSE_LEFT_BUTTON,
+<br><span style='white-space: pre;'>    </span>PLATFORM_MOUSE_RIGHT_BUTTON,
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Everthing before here</span><br><span style='white-space: pre;'>    </span>PLATFORM_KEY_TOTAL_COUNT
+<br>};
+<br><br></div><br><p>
+In our platform input struct we'll create a buffer for text input commands.</p>
+<br><div class="code-block-left "><span style="color: #DAB98F;">#define </span>PLATFORM_MAX_KEY_INPUT_BUFFER <span style="color: #6B8E23;">16
+</span><br><br><span style="color: #CD950C;">struct </span>PlatformInputState {
+<br><br><span style='white-space: pre;'>    </span>PlatformKeyState keyStates[PLATFORM_KEY_TOTAL_COUNT]; 
+<br><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Mouse data</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseX;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseY;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseScrollX;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>mouseScrollY;
+<br><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Text Input</span><br><span style='white-space: pre;'>    </span>uint8_t textInput_utf8[PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES];
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>textInput_bytesUsed;
+<br><br><span style='white-space: pre;'>    </span>PlatformKeyType keyInputCommandBuffer[PLATFORM_MAX_KEY_INPUT_BUFFER];
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>keyInputCommand_count;
+<br><br>};
+<br></div><br><p>
+On a WM_KEYDOWN message we'll add a command to the buffer if it is an arrow key or a backspace key. </p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//... other messages handled above</span><br><span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP || 
+<br>message == WM_KEYDOWN || message == WM_KEYUP<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Handling our key presses here </span><br><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyWasDown <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span><span style="color: #A08563;">(</span>lparam <span style="color: #CD950C;">& </span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">1 </span>&lt;&lt; <span style="color: #6B8E23;">30</span><span style="color: #A08563;">)</span><span style="color: #A08563;">)</span> == <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>keyIsDown =   <span style="color: #CD950C;">!</span><span style="color: #A08563;">(</span>lparam <span style="color: #CD950C;">& </span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">1 </span>&lt;&lt; <span style="color: #6B8E23;">31</span><span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span>WPARAM vk_code = wparam;    	
+<br><br><span style='white-space: pre;'>    </span>PlatformKeyType keyType = PLATFORM_KEY_NULL; 
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>addToCommandBuffer = false;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: match our internal key names to the vk code</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_UP<span style="color: #A08563;">)</span> { 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_UP;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_DOWN<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_DOWN;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_LEFT;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Also add the message to our command buffer if it was a KEYDOWN message</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>addToCommandBuffer = keyIsDown;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_RIGHT;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Also add the message to our command buffer if it was a KEYDOWN message</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>addToCommandBuffer = keyIsDown;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'Z'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_Z;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == 'X'<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_X;
+<br><span style='white-space: pre;'>    </span>} <span style="color: #CD950C;">else </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>vk_code == VK_BACK<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>keyType = PLATFORM_KEY_BACKSPACE;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Also add the message to our command buffer if it was a KEYDOWN message</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>addToCommandBuffer = keyIsDown;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Add the command message here </span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>addToCommandBuffer && global_platformInput.keyInputCommand_count &lt; PLATFORM_MAX_KEY_INPUT_BUFFER<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.keyInputCommandBuffer[global_platformInput.keyInputCommand_count++] = keyType;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//Process our key presses, released and down messages as normal </span><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//...</span><br><br></div><br><p>
+We'll make sure we clear our command buffer at the start of each frame.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: The Game Loop</span><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Clear our input command buffer</span><br><span style='white-space: pre;'>    </span>global_platformInput.keyInputCommand_count = <span style="color: #6B8E23;">0;
+</span><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//... other clear input code</span><br><br></div><br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/09%20version%20-%20collecting%20backspace%20and%20cursor%20movement/main.cpp#L144-L152'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id13'>Using our command buffer in the game loop</span></h2><br><p>
+Now that we've gathered our command inputs for the frame we can process them to edit a text buffer with a cursor position. It might look something like this:</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: Create a input buffer to store text input across frames.</span><br><span style="color: #DAB98F;">#define </span>MAX_INPUT_BUFFER_SIZE <span style="color: #6B8E23;">4096
+</span><br><span style="color: #6B8E23;">int </span>textBuffer_count = <span style="color: #6B8E23;">0;
+</span><br>uint8_t textBuffer[MAX_INPUT_BUFFER_SIZE] = {};
+<br><br><span style="color: #7D7D7D;">//NOTE: Where our cursor position is</span><br><span style="color: #6B8E23;">int </span>cursorAt = <span style="color: #6B8E23;">0;
+</span><br><br><span style="color: #6B8E23;">bool </span>running = true;
+<br><span style="color: #CD950C;">while</span><span style="color: #A08563;">(</span>running<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//... other code here</span><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//...our message loop here</span><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Find the smallest size we can add to the buffer without overflowing it</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>bytesToMoveAboveCursor = global_platformInput.textInput_bytesUsed;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>spaceLeftInBuffer <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>MAX_INPUT_BUFFER_SIZE - textBuffer_count - <span style="color: #6B8E23;">1</span><span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//minus one to put a null terminating character in</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>bytesToMoveAboveCursor &gt; spaceLeftInBuffer<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>bytesToMoveAboveCursor = spaceLeftInBuffer;
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Get all characters above cursor and save them in a buffer</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">char </span>tempBuffer[MAX_INPUT_BUFFER_SIZE] = {};
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>tempBufferCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = cursorAt; i &lt; textBuffer_count; i++<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>tempBuffer[tempBufferCount++] = textBuffer[i];
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Copy new string into the buffer</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; bytesToMoveAboveCursor; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>textBuffer[cursorAt + i] = global_platformInput.textInput_utf8[i];
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Advance the cursor and the buffer count</span><br><span style='white-space: pre;'>    </span>textBuffer_count += bytesToMoveAboveCursor;
+<br><span style='white-space: pre;'>    </span>cursorAt += bytesToMoveAboveCursor;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Replace characters above the cursor that we would have written over</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; tempBufferCount; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>textBuffer[cursorAt + i] = tempBuffer[i]; 
+<br><span style='white-space: pre;'>    </span>}
+<br><br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Process our command buffer</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; global_platformInput.keyInputCommand_count; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>PlatformKeyType command = global_platformInput.keyInputCommandBuffer[i];
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>command == PLATFORM_KEY_BACKSPACE<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: can't backspace a character if cursor is in front of text</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>cursorAt &gt; <span style="color: #6B8E23;">0 </span>&& textBuffer_count &gt; <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Move all characters in front of cursor down</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>charactersToMoveCount = textBuffer_count - cursorAt;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; charactersToMoveCount; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>indexInFront = cursorAt + i;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>indexInFront &lt; textBuffer_count<span style="color: #A08563;">)</span>; <span style="color: #7D7D7D;">//make sure not buffer overflow</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>textBuffer[cursorAt + i - <span style="color: #6B8E23;">1] </span>= textBuffer[indexInFront]; <span style="color: #7D7D7D;">//get the one in front </span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>cursorAt--;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>textBuffer_count--;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>command == PLATFORM_KEY_LEFT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Move cursor left </span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>cursorAt &gt; <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>cursorAt--;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>command == PLATFORM_KEY_RIGHT<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Move cursor right </span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>cursorAt &lt; textBuffer_count<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>cursorAt++;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}       
+<br><span style='white-space: pre;'>    </span>}  
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: put in a null terminating character at the end</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>textBuffer_count &lt; MAX_INPUT_BUFFER_SIZE<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>textBuffer[textBuffer_count] = '\0';  
+<br><br></div><br><p>
+Phew! We did it. There's quite a bit of code but hopefully it makes sense. </p>
+<br><p>
+The first bit is splicing in our new string into our input buffer. We make sure we don't override any characters in the buffer after the cursor so we make a copy of it. We then copy our new string into the buffer starting at the cursor location. Next we copy back in the characters we saved.</p>
+<br><p>
+After we've spliced our string into the buffer, we process our command buffer, moving the cursor left or right, and if it's a backspace, moving all the characters up by one character. </p>
+<br><p>
+Since we're treating all characters as 1 byte length, this isn't unicode compatible since characters bigger than the asci character set will be bigger than 1 byte. Instead, you'd want to move the cursor and backspace a variable number of bytes based on how big the utf-8 character is - ranging from 1 byte for asci to 4 bytes for emojis.     </p>
+<br><p>
+As an exercise you could pull this code into general input buffer to reuse in your projects. You could also make the buffer expand if it gets full - right now the buffer is fixed size. </p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/10%20version%20-%20splicing%20text%20into%20a%20buffer/main.cpp#L264-L331'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><hr><h2><span id='id14'>Handling Unicode characters</span></h2><br><p>
+To handle unicode characters coming in on the WM_CHAR messags, we have to do a little bit more work. For our game loop we're assuming we're going to use utf-8 encoded strings - <b>so our goal is to convert utf-16 characters coming in from Windows to utf-8.</b>  </p>
+<br><p>
+First we need to get the utf-16 characters. A quick side tour into utf-16 encoding. Utf-16 is another encoding scheme to reduce the size of strings. The 16 part is the minimum size that's needed to represent a unicode point - in this case 16 bits. However just 16bits is not enough to cover all unicode characters. To do so you need two 16bit characters that when decoded together you can get the unicode character. These are called surrogate pairs. So a unicode point in utf-16 is either represented as one 16 bit number or two. Emojis for example are need the surrogate pair to represent it. </p>
+<br><p>
+Since each WM_CHAR message only contains a single 16bit character per message, depending on what unicode value it is, we need to know whether this is part of a surrogate pair or just a single 16bit character. If it is part of a pair, the next character is assumed to come in as the next WM_CHAR message. If it is a pair, the first 16bit number is called the <b>Low Surrogate</b> and the second 16 bit character is the <b>High Surrogate</b>. Windows gives us helper macros to find this out for us: <b>IS_LOW_SURROGATE(), IS_HIGH_SURROGATE() and IS_SURROGATE_PAIR()</b>. If it is a low surrogate we need to store it until the next WM_CHAR message. We're going to put it in the PlatformInputState.  </p>
+<br><p>
+Once we get two 16 bit characters that are a surrogate pair or a 16bit character that's not part of a pair, we're then going to add these to our input buffer. First we'll want to convert them to utf-8 encoding.  We use the windows function <i>WideCharToMultiByte</i> to do this for us. We first get the size of the utf-8 codepoint in bytes, then if it fits in our buffer, we'll convert it, putting the result in our buffer using the same function - <i>WideCharToMultiByte</i> - this time passing in the size. We then increment the size of our buffer and put a null terminating character at the end to make sure anyone using this as a null terminated string will be ok. </p>
+<br><p>
+<i>WideCharToMultiByte</i> takes an array of wide characters - 16bit each. So to convert a surrogate pair, we make an array of 2 WCHAR (16bits) and put the low surrogate in first, than the high surrogate in second. For the codepoint represented by just the single 16bit char, we just put it in index zero and sepcify the size of the array in the WideCharToMultiByte function.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>msg == WM_CHAR<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Dont add backspace to the buffer</span><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>wparam != VK_BACK<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>WCHAR utf16_character <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>WCHAR<span style="color: #A08563;">)</span>wparam;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>characterCount = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>WCHAR characters[2];
+<br><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Build the utf-16 string</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if </span><span style="color: #A08563;">(</span><span style="color: #CD950C;">IS_LOW_SURROGATE</span><span style="color: #A08563;">(</span>utf16_character<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if </span><span style="color: #A08563;">(</span>global_platformInput.low_surrogate != <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// received two low surrogates in a row, just ignore the first one</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.low_surrogate = utf16_character;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">else </span><span style="color: #CD950C;">if </span><span style="color: #A08563;">(</span><span style="color: #CD950C;">IS_HIGH_SURROGATE</span><span style="color: #A08563;">(</span>utf16_character<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if </span><span style="color: #A08563;">(</span>global_platformInput.low_surrogate == <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// received hight surrogate without low one first, just ignore it</span><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">else </span><span style="color: #CD950C;">if </span><span style="color: #A08563;">(</span><span style="color: #CD950C;">!IS_SURROGATE_PAIR</span><span style="color: #A08563;">(</span>utf16_character, global_platformInput.low_surrogate<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// invalid surrogate pair, ignore the two pairs</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.low_surrogate = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>} 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">else </span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: We got a surrogate pair. The string we convert to utf8 will be 2 characters long - 32bits not 16bits</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characterCount = <span style="color: #6B8E23;">2;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characters[0] = global_platformInput.low_surrogate;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characters[1] = utf16_character;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">else
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if </span><span style="color: #A08563;">(</span>global_platformInput.low_surrogate != <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>{
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// expected high surrogate after low one, but received normal char</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">// accept normal char message (ignore low surrogate)</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: always add non-pair characters. The string will be one character long - 16bits</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characterCount = <span style="color: #6B8E23;">1;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characters[0] = utf16_character;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.low_surrogate = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>characterCount &gt; <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Convert the utf16 character to utf8</span><br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Get the size of the utf8 character in bytes</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>bufferSize_inBytes = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>CP_UTF8,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0,
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #A08563;">(</span>LPCWCH<span style="color: #A08563;">)</span>characters,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characterCount,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>global_platformInput.textInput_utf8, 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0,
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0, </span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: See if we can still fit the character in our buffer. We don't do &lt;= to the max buffer size since we want to keep one character to create a null terminated string.</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span><span style="color: #A08563;">(</span>global_platformInput.textInput_bytesUsed + bufferSize_inBytes<span style="color: #A08563;">)</span> &lt; PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES<span style="color: #A08563;">)</span> {
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Add the utf8 value of the codepoint to our buffer</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">int </span>bytesWritten = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>CP_UTF8,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0,
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #A08563;">(</span>LPCWCH<span style="color: #A08563;">)</span>characters,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>characterCount,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #A08563;">(</span>LPSTR<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>global_platformInput.textInput_utf8 + global_platformInput.textInput_bytesUsed<span style="color: #A08563;">)</span>, 
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>bufferSize_inBytes,
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0, </span>
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Increment the buffer size</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.textInput_bytesUsed += bufferSize_inBytes;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Make the string null terminated</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>bufferSize_inBytes &lt; PLATFORM_MAX_TEXT_BUFFER_SIZE_IN_BYTES<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.textInput_utf8[global_platformInput.textInput_bytesUsed] = '\0';
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>global_platformInput.low_surrogate = <span style="color: #6B8E23;">0;
+</span><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span>}
+<br><br></div><br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/355c9f7745a3a95a6828edd22dc8d15516fa1613/windows_keyboard_input/11%20version%20-%20handling%20text%20input%20unicode/main.cpp#L71-L162'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the code up to this point.  👆</div></a><br><br><p>
+Ah! Made it! We are now accepting all unicode text coming in from the OS. As mentioned before to navigate between the glyphs in a text editor and delete them, you'll have to know how big each codepoint is in utf-8 encoding. I'll leave this as an exercise to the reader. </p>
+<br><hr><h2>Conclusion</h2><br><p>
+That's it! We're done. We covered Keyboard Input, Mouse Input, Mouse cursor position and Text Input. This is everything you need to make a professional PC game. I hope you enjoyed this lesson and helps you on your programming journey. </p>
+<br><hr><h2>NOTES</h2><br><p>
+[1] If we're really processing only the last message that we recieved each frame, wouldn't we get multiple WM_KEYDOWN messages in a frame when we start pressing a key? Causing us to not register any key press events? Luckily, Windows and most Operating Systems has a Keyboard Repeat functionality causing a slight delay between the first WM_KEYDOWN message of a key press and subsequent WM_KEYDOWN messages. This means in a single frame, it's unlikely we will see a second WM_KEYDOWN message for a key press.</p>
+<br><p>
+[2] You can test your keyboard scan rate <a href=https://blog.seethis.link/scan-rate-estimator/> at this link </a>. <a href='https://www.reddit.com/r/MechanicalKeyboards/comments/k2mb4x/keyboard_polling_ratescan_rate_help/'>The answer on this thread gives a detailed explanation on Poll Rate vs Scan Rate of a keyboard.</a></p>
+<br></div>
+</div>
+</div>
+<br><br></div></body></html><script src='email.js'></script>

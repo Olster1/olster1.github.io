@@ -1,0 +1,56 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Games Craft</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 3cm;" src="./photos/logo.png"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./articles.html">Articles</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<h2>Collision Recovery</h2><br><h3>29th September 2024</h3><br><br><p>
+For the player collision detection with the world, we use a raycast against all the blocks in a certain radius of the player. We then find the shortest distance to a block and move that far. This works quite well but every now and then the player would get stuck in a block and wouldn't be able to get out. I'm not sure exactly what caused this but assume it is just a certain angle and block arrangement that causes the player to move inside a block slightly. This is a common collision detection thing to do: try as hard as possible to not get stuck in something, but if you do have someway to recover from it. I originally thought of the GJK/EPA algorithm. But instead could just do a really simple thing, search for the closest empty block space, just like we did for the pickup blocks. </p>
+<br><p>
+To do this we just check in a 3 x 3 x 3 cube around us whether there is a block present. We loop through all positions and pick the closest empty position. If there isn't anyone, we just default to head upwards.</p>
+<br><div class="code-block-left ">float3 <span style="color: #CD950C;">findClosestFreePosition</span><span style="color: #A08563;">(</span>GameState *gameState, float3 startP, float3 defaultDir, float3 *searchOffsets, <span style="color: #6B8E23;">int </span>searchOffsetCount<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span>float3 result = defaultDir;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>closestDist = FLT_MAX;
+<br><span style='white-space: pre;'>    </span>float3 startP_block = <span style="color: #CD950C;">convertRealWorldToBlockCoords</span><span style="color: #A08563;">(</span>startP<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">bool </span>found = false;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">for</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">int </span>i = <span style="color: #6B8E23;">0; </span>i &lt; searchOffsetCount; ++i<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>float3 offset = searchOffsets[i];
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>float3 blockP = <span style="color: #CD950C;">plus_float3</span><span style="color: #A08563;">(</span>offset, startP_block<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>BlockChunkPartner blockPtr = <span style="color: #CD950C;">blockExists</span><span style="color: #A08563;">(</span>gameState, blockP.x, blockP.y, blockP.z, BLOCK_EXISTS_COLLISION<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>!blockPtr.block<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>float3 dirVector = <span style="color: #CD950C;">minus_float3</span><span style="color: #A08563;">(</span>blockP, startP<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">float </span>d = <span style="color: #CD950C;">float3_magnitude_sqr</span><span style="color: #A08563;">(</span>dirVector<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>d &lt; closestDist<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>result = dirVector;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>closestDist = d;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>found = true;
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span><span style='white-space: pre;'>    </span>}
+<br><span style='white-space: pre;'>    </span>}
+<br><br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>result;
+<br>}
+<br></div><br><p>
+In our player movement code we call this function if we're stuck in a block.</p>
+<br><div class="code-block-left ">... other player movement code
+<br><br><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>shortestNormalVector.x == <span style="color: #6B8E23;">0 </span>&& shortestNormalVector.y == <span style="color: #6B8E23;">0 </span>&& shortestNormalVector.z == <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Inside the block</span><br><span style='white-space: pre;'>    </span>float3 moveDir = <span style="color: #CD950C;">findClosestFreePosition</span><span style="color: #A08563;">(</span>gameState, e-&gt;T.pos, <span style="color: #CD950C;">make_float3</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">1, </span><span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>, gameState-&gt;searchOffsets, <span style="color: #CD950C;">arrayCount</span><span style="color: #A08563;">(</span>gameState-&gt;searchOffsets<span style="color: #A08563;">)</span>, <span style="color: #CD950C;">arrayCount</span><span style="color: #A08563;">(</span>gameState-&gt;searchOffsets<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>moveDir = <span style="color: #CD950C;">normalize_float3</span><span style="color: #A08563;">(</span>moveDir<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>e-&gt;recoverDP = <span style="color: #CD950C;">plus_float3</span><span style="color: #A08563;">(</span>e-&gt;recoverDP, <span style="color: #CD950C;">scale_float3</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">1.0f, </span>moveDir<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
+<br>} <span style="color: #CD950C;">else </span>{
+<br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Not in a block so reset the recover dP</span><br><span style='white-space: pre;'>    </span>e-&gt;recoverDP = <span style="color: #CD950C;">make_float3</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span>;
+<br>}   
+<br><br>...
+<br></div><br><p>
+The recoverDP is a seperate field than the dP used by gravity and such. This is becuase it doesn't get dampened when we run into something i.e. the inside walls of a block. It affects the player no matter what. </p>
+<br><p>
+We integrate this recover DP to get a delta position each frame, and add it to the total player position.</p>
+<br><div class="code-block-left ">void <span style="color: #CD950C;">updateRecoverMovement</span><span style="color: #A08563;">(</span>GameState *gameState, Entity *e<span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Apply drag</span><br><span style='white-space: pre;'>    </span>e-&gt;recoverDP = <span style="color: #CD950C;">scale_float3</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0.95f, </span>e-&gt;recoverDP<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE:Integrate velocity</span><br><span style='white-space: pre;'>    </span>e-&gt;T.pos = <span style="color: #CD950C;">plus_float3</span><span style="color: #A08563;">(</span>e-&gt;T.pos, <span style="color: #CD950C;">scale_float3</span><span style="color: #A08563;">(</span>gameState-&gt;dt, e-&gt;recoverDP<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
+<br><br>}
+<br></div><br><p>
+To test this now we need a way to purposely run inside a block. I was trying to get the bug to repeat but they were few and far between. So this gives a easily testable scenario. To do this we toggle into camera mode, which allows us to fly around with no collision. Once inside a block we revert to player mode and see what happens.</p>
+<br><video controls="controls" width="800" height="600" type="video/webm" name="attack bat">
+  <source src="./images/collision_recover.webm">
+</video>
+</div><br><a target='_blank' href='https://github.com/Olster1/minecraft_clone'><div style='background-color: #FFE5B4; border-radius: 0.5cm; padding: 0.5cm;'> You can see the codebase here 👆</div></a><br><br></div>
+</div>
+</div>
+<br><br></div></body></html><script src='email.js'></script>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Games Craft</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 3cm;" src="./photos/logo.png"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./articles.html">Articles</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<h1>Get your .exe file path on Windows</h1><hr><p>
+If your making a game in Windows, your're going to want to get the path to your game exe. Since a user can put your game whereever they want, you don't specifically know where your resources like texture, sounds, fonts and models will be on their computer. <b>You only know they'll be in a specific folder relative to your .exe.</b> If we know this, we can work backward and make the absolute file name to access our game resources. </p>
+<br><p>
+For example if the user puts the game in their <i>Documents</i> folder, the exe path would look something like this:</p>
+<br><div class="code-block-left ">C:\\Users\myName\Documents\awesome_game\awesome_game.exe
+<br></div><br><p>
+Once we have this file path, we can alter it to find our game resources. For example if our resources are located at this address:</p>
+<br><div class="code-block-left ">C:\\Users\myName\Documents\awesome_game\resources\
+<br></div><br><p>
+And a font file address might look like this:</p>
+<br><div class="code-block-left ">C:\\Users\myName\Documents\awesome_game\resources\Arial_font.tff
+<br></div><br><p>
+We can alter our original exe string, removing the exe off the end and replacing it with <b>resources</b> and the resource name.</p>
+<br><p>
+In this tutorial we'll do four things: </p>
+<br><p>
+1. Get our .exe path</p>
+<br><p>
+2. Remove the exe name </p>
+<br><p>
+3. Append our new file location</p>
+<br><p>
+4. Convert the string from utf-16 to utf-8</p>
+<br><hr><h3>Get the .exe path using the Win32 API</h3><br><br><div class="code-block-left ">WCHAR resourcesPath[MAX_PATH];
+<br><span style="color: #6B8E23;">int </span>sizeOfPath = <span style="color: #CD950C;">GetModuleFileNameW</span><span style="color: #A08563;">(</span>NULL, resourcesPath, <span style="color: #CD950C;">ARRAYSIZE</span><span style="color: #A08563;">(</span>resourcesPath<span style="color: #A08563;">)</span><span style="color: #A08563;">)</span>;
+<br><br><span style="color: #7D7D7D;">//NOTE: Assert if function failed</span><br><span style="color: #CD950C;">if</span><span style="color: #A08563;">(</span>sizeOfPath == <span style="color: #6B8E23;">0</span><span style="color: #A08563;">)</span> {
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span><span style="color: #DAB98F;">!"get module file name failed"</span><span style="color: #A08563;">)</span>;
+<br>}
+<br><br></div><br><p>
+We use the Windows function <i>GetModuleFileNameW</i> to get the file path of our exe. We can pass NULL as the first argument because we want it for the process running this function. We also pass the buffer we want to be filled out and the size. We then assert the function worked. </p>
+<br><p>
+To be unicode compatible, we use the WCHAR type for the buffer to be filled out, and use the MAX_PATH macro for the size of the buffer.</p>
+<br><hr><h3>Alter the string</h3><br><br><p>
+Now that we have the file path, we can create our our resource folder string. Say if we have a folder like above call <i>resources</i> in the same folder as our exe, we'll want to remove the exe path, and replace it with the string <i>resources\</i>. We could do this ourselves but Windows already has a function to do this for us. First we'll remove the .exe off the end of our string. </p>
+<br><div class="code-block-left "><span style="color: #CD950C;">PathRemoveFileSpecW</span><span style="color: #A08563;">(</span>resourcesPath<span style="color: #A08563;">)</span>;
+<br><br></div><br><p>
+Great, we've remove the trailing exe and the slash preceding it. Our string should now look like this <i>C:\\Users\myName\Documents\awesome_game</i></p>
+<br><p>
+Now we'll add the folder name our resources are in. Again we could do this manually, but Windows has a handy function that does it for us.</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">PathAppendW</span><span style="color: #A08563;">(</span>resourcesPath, <span style="color: #DAB98F;">L"resources\\"</span><span style="color: #A08563;">)</span>;
+<br><br></div><br><p>
+There we have it. With just three functions we've created the absolute path to our game resources. Since this string is utf-16, we may want to convert it to utf-8.</p>
+<br><hr><h3>Convert to utf-8</h3><br><br><p>
+If the rest of our game engine expects to use utf-8 instead of Windows utf-16, we will want to convert it to utf-8. Like other tutorials on this site, we use the trusty <i>WideCharToMultiByte</i> function. </p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">///////////////////////************* Convert the string now to utf8 ************////////////////////</span><br><br>u8 *resourcePath_as_utf8 = <span style="color: #6B8E23;">0;
+</span><br><br><span style="color: #6B8E23;">int </span>bufferSize_inBytes = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span>
+<br>CP_UTF8,
+<br><span style="color: #6B8E23;">0,
+</span><br>resourcesPath,
+<br><span style="color: #6B8E23;">-1,
+</span><br><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>resourcePath_as_utf8, 
+<br><span style="color: #6B8E23;">0,
+</span><br><span style="color: #6B8E23;">0, </span>
+<br><span style="color: #6B8E23;">0
+</span><br><span style="color: #A08563;">)</span>;
+<br><br><br>resourcePath_as_utf8 <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>u8 *<span style="color: #A08563;">)</span><span style="color: #CD950C;">malloc</span><span style="color: #A08563;">(</span>bufferSize_inBytes<span style="color: #A08563;">)</span>;
+<br><br><span style="color: #6B8E23;">u32 </span>bytesWritten = <span style="color: #CD950C;">WideCharToMultiByte</span><span style="color: #A08563;">(</span>
+<br>CP_UTF8,
+<br><span style="color: #6B8E23;">0,
+</span><br>resourcesPath,
+<br><span style="color: #6B8E23;">-1,
+</span><br><span style="color: #A08563;">(</span>LPSTR<span style="color: #A08563;">)</span>resourcePath_as_utf8, 
+<br>bufferSize_inBytes,
+<br><span style="color: #6B8E23;">0, </span>
+<br><span style="color: #6B8E23;">0
+</span><br><span style="color: #A08563;">)</span>;
+<br><br><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>bytesWritten == bufferSize_inBytes<span style="color: #A08563;">)</span>;
+<br><br></div><br><p>
+We first find the size of the buffer we need to allocate. We then allocate it using malloc. Finally we use the same function again, but this time we bass in our newly created buffer. </p>
+<br><hr><h3>Conclusion</h3><br><br><p>
+We did it! We've now got an <b>absolute</b> path to our game's resources. We can use this now to access them without crashing since it knows where they'll be. </p>
+<br><p>
+Before we compile it, we'll add the Windows header since we are using windows functions and data types. To use <i>PathRemoveFileSpecW</i> and <i>PathAppendW</i> we have to include the header <i>shlwapi.h</i> and link to <i>Shlwapi.lib</i> in our build script.</p>
+<br><div class="code-block-left "><span style="color: #DAB98F;">#include </span>&lt;shlwapi.h&gt;
+<br><span style="color: #DAB98F;">#include </span>&lt;windows.h&gt;
+<br></div><br><p>
+Our build script:</p>
+<br><div class="code-block-left "><span style="color: #DAB98F;">cl </span>-Od -Zi main.cpp <span style="color: #DAB98F;">/link </span>Shlwapi.lib
+<br></div><br><p>
+Od and Zi being so I can debug it in Visual Studio and see the if the string we make is correct!  </p>
+<br><p>
+Hope you enjoyed this article. Happy game making!</p>
+<br><a target='_blank' href='https://github.com/Olster1/windows_tutorials/blob/main/getExePath_function/main.cpp'> The full code can be found here 👆</a><br><br><p>
+Thanks for reading!</p>
+</div>
+</div>
+</div>
+<br><br></div></body></html><script src='email.js'></script>

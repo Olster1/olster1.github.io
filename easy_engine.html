@@ -1,0 +1,57 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Games Craft</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 3cm;" src="./photos/logo.png"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./articles.html">Articles</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<h1>Easy Engine: full 3D game engine written in C/C++</h1></div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<p>
+#Easy Engine is a project to create a full 3D engine written in C/C++ using very minimal libraries. The project is designed to learn as much as possible how a modern game engine is made and learn all the skills that go into creating one.</p>
+<br><hr><br><h2>Renderer </h2><br><p>
+#The engine has a 3d renderer using OpenGL that has support for 2d sprites, fonts, 3D models, 3D seletal animation, directional & point lights, MSAA anti-aliasing, Bloom, tone mapping and terrain rendering. It does this while minimising draw calls by batching all common draw calls together. It has an easy to use API.    </p>
+<br><p>
+#<img src='./photos/gif1.gif' style='width: 50vw;'></p>
+<br><p>
+#<i>Example game using the engine</i></p>
+<br><p>
+#<a href='https://www.youtube.com/watch?v=UKiuvnSzYr0'>Video of another example game using the engine</a></p>
+<br><hr><br><h2>Profiler</h2><br><p>
+#A profiler to examine what's slowing the frame rate and load time down. Custom built with no libraries, you hit F4 and can see information about what happened in a frame.</p>
+<br><p>
+#You can drill down into a function if it is slow and see why. It also shows all seperate draw submissions to the GPU each frame, to see what your're drawing.    </p>
+<br><p>
+#<img src='./photos/profiler1.png' style='width: 50vw;'></p>
+<br><p>
+#<img src='./photos/profiler2.png' style='width: 50vw;'></p>
+<br><p>
+#<img src='./photos/profiler3.png' style='width: 50vw;'></p>
+<br><p>
+#<img src='./photos/profiler4.png' style='width: 50vw;'></p>
+<br><hr><br><h2>Virtual Machine and AST construction</h2><br><p>
+#THe engine has a stack based virtual machine aswell as construction of an abstract syntax tree from a text string. In these videos you can see a block based code builder I made in the engine that made use of the virtual machine (the window to the far right).</p>
+<br><p>
+#<a href='https://www.youtube.com/watch?v=WbfkHDYefJY'>Demostration of block code builder</a></p>
+<br><p>
+#<a href='https://www.youtube.com/watch?v=pIZ-3y_8Acw'>Using the block editor to manipulate shapes</a></p>
+<br><p>
+#<a href='https://www.youtube.com/watch?v=ZqYY1xVf10M'>Demostration of 'If' statment</a></p>
+<br><p>
+#<a href='https://www.youtube.com/watch?v=c4T-OxchO9s'>Demostration of 'While' statment</a></p>
+<br><hr><br><h2>Math Library</h2><br><p>
+#Custom math library that has functions for lerp functions, smoothStep functions, Vector2, Vector3, Vector4 operations (cross and dot products) and 4x4 matrices, euler angles and Quaternions for 3d rotation and rendering. Ray casting against 3D boxes not axis aligned. </p>
+<br><p>
+#<a href='https://github.com/Olster1/easy_engine/blob/master/engine/easy_math.h'>Github code</a></p>
+<br><hr><br><h2>Physics Engine</h2><br><p>
+#Custom Physics engine that supports 2d collions  </p>
+<br><hr><br><h2>Fonts</h2><br><p>
+#The engine uses SDF fonts (popularized by Valve) and has the ability to create SDF Font Atlases from .ttf fonts. You can render fonts both in screen space and world space, and handles custom UTF8 decoding.</p>
+<br><p>
+#<a href='https://www.youtube.com/watch?v=CCBDrplrioo'>Video demonstration of SDF font</a></p>
+<br><p>
+#<a href='https://github.com/Olster1/easy_engine/blob/master/engine/easy_font.h'>Github code</a></p>
+<br></div>
+</div>
+</div>
+<br><br></div></body></html><script src='email.js'></script>

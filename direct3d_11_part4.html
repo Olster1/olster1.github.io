@@ -1,0 +1,188 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Games Craft</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 3cm;" src="./photos/logo.png"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./articles.html">Articles</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<h1>Direct3d 11 for games: Part 4</h1><h2>Texturing our Triangle</h2><br></div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<p>
+In Part 3 we finished with rendering our colorful triangle. The next step is to now texture that triangle. Texturing triangles is a crucial part of games both 2d and 3d. Whether it be 2d Sprites or 3d Model Textures, they rely on texturing a triangle. Let's get going!</p>
+<br><hr><h2>Loading our .png</h2><br><p>
+To get our texture triangle first we need to load an image to use as the texture. We'll use Sean Barrett's stb_image library to load the png we'll use. We then need to upload it to the GPU. Let's do that now.</p>
+<br><a target='_blank' href='https://github.com/nothings/stb/blob/master/stb_image.h'> You can get stb_image here. Drop it in your project folder.  👆</a><br><br><p>
+We then include it at the top with the other header files.</p>
+<br><div class="code-block-left "><span style="color: #DAB98F;">#define </span>STB_IMAGE_IMPLEMENTATION
+<br><span style="color: #DAB98F;">#include </span><span style="color: #DAB98F;">"stb_image.h"</span>
+<br></div><br><p>
+We drop an image into our project folder aswell which we will use as the source texture we will sample from. </p>
+<br><a target='_blank' href='https://github.com/Olster1/directX11_tutorial/blob/main/lesson4/testTexture.png'> You can get the one we're using here. 👆</a><br><br><p>
+We can now use stb image to load the png.</p>
+<br><div class="code-block-left "><span style="color: #6B8E23;">int </span>texWidth;
+<br><span style="color: #6B8E23;">int </span>texHeight;
+<br><span style="color: #6B8E23;">unsigned </span><span style="color: #6B8E23;">char </span>*testTextureBytes <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">unsigned </span><span style="color: #6B8E23;">char </span>*<span style="color: #A08563;">)</span><span style="color: #CD950C;">stbi_load</span><span style="color: #A08563;">(</span><span style="color: #DAB98F;">"testTexture.png"</span>, &texWidth, &texHeight, <span style="color: #6B8E23;">0, </span>STBI_rgb_alpha<span style="color: #A08563;">)</span>;
+<br><span style="color: #6B8E23;">int </span>texBytesPerRow = <span style="color: #6B8E23;">4 </span>* texWidth;
+<br><br><span style="color: #CD950C;">assert</span><span style="color: #A08563;">(</span>testTextureBytes<span style="color: #A08563;">)</span>;
+<br></div><br><hr><h2>Uploading our Image to the GPU</h2><br><p>
+To create our ID3D11Texture2D we first create a D3D11_TEXTURE2D_DESC describing the texture.</p>
+<br><div class="code-block-left ">D3D11_TEXTURE2D_DESC textureDesc = {};
+<br>textureDesc.Width              = texWidth;
+<br>textureDesc.Height             = texHeight;
+<br>textureDesc.MipLevels          = <span style="color: #6B8E23;">1;
+</span><br>textureDesc.ArraySize          = <span style="color: #6B8E23;">1;
+</span><br>textureDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+<br>textureDesc.SampleDesc.Count   = <span style="color: #6B8E23;">1;
+</span><br>textureDesc.Usage              = D3D11_USAGE_IMMUTABLE;
+<br>textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
+<br></div><br><p>
+We set the width, height, and format of the texture. We also set the usage to iD3D11_USAGE_IMMUTABLE because we  n't be changing the texture at runtime. And set the Bind Flags to being a D3D11_BIND_SHADER_RESOURCE.</p>
+<br><p>
+We also need to create a D3D11_SUBRESOURCE_DATA as we did with the vertex data that contains the actual image data.</p>
+<br><div class="code-block-left ">D3D11_SUBRESOURCE_DATA textureSubresourceData = {};
+<br>textureSubresourceData.pSysMem = testTextureBytes;
+<br>textureSubresourceData.SysMemPitch = texBytesPerRow;
+<br></div><br><p>
+We can now create the texture using our d3d11Device.</p>
+<br><div class="code-block-left ">ID3D11Texture2D* texture;
+<br><span style="color: #CD950C;">d3d11Device-&gt;CreateTexture2D</span><span style="color: #A08563;">(</span>&textureDesc, &textureSubresourceData, &texture<span style="color: #A08563;">)</span>;
+<br></div><br><p>
+You'll notice this is very similar to create the vertex buffer where we created a description and a subresource_data which we passed to the createBuffer function.</p>
+<br><hr><h2>Create our Shader Resource View</h2><br><p>
+We've now successfully created our texture. To use it in our shader we need to create a ID3D11ShaderResourceView.</p>
+<br><div class="code-block-left ">ID3D11ShaderResourceView* textureView;
+<br><span style="color: #CD950C;">d3d11Device-&gt;CreateShaderResourceView</span><span style="color: #A08563;">(</span>texture, nullptr, &textureView<span style="color: #A08563;">)</span>;
+<br></div><br><p>
+Now that the image data is on the GPU we no longer need it on the CPU so we can free the image data:</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">free</span><span style="color: #A08563;">(</span>testTextureBytes<span style="color: #A08563;">)</span>;
+<br></div><br><hr><h2>Create the texture sampler</h2><br><p>
+When we use the texture view in our shader, we also need a sampler that knows how to sample the texture. These are things like the filter (LINEAR or POINT sampling [1] ), what color the border of the image should be, should we clamp or wrap values if we go out of bounds?</p>
+<br><p>
+This is different from OpenGL in which the sampler settings are coupled with the texture. So the texture can only be sampled one way. In Direct3d you can use different samplers for the same texture if you'd like.</p>
+<br><div class="code-block-left ">D3D11_SAMPLER_DESC samplerDesc = {};
+<br>samplerDesc.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+<br>samplerDesc.AddressU       = D3D11_TEXTURE_ADDRESS_BORDER;
+<br>samplerDesc.AddressV       = D3D11_TEXTURE_ADDRESS_BORDER;
+<br>samplerDesc.AddressW       = D3D11_TEXTURE_ADDRESS_BORDER;
+<br>samplerDesc.BorderColor[0] = <span style="color: #6B8E23;">1.0f;
+</span><br>samplerDesc.BorderColor[1] = <span style="color: #6B8E23;">1.0f;
+</span><br>samplerDesc.BorderColor[2] = <span style="color: #6B8E23;">1.0f;
+</span><br>samplerDesc.BorderColor[3] = <span style="color: #6B8E23;">1.0f;
+</span><br>samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+<br>ID3D11SamplerState* samplerState;
+<br><span style="color: #CD950C;">d3d11Device-&gt;CreateSamplerState</span><span style="color: #A08563;">(</span>&samplerDesc, &samplerState<span style="color: #A08563;">)</span>;
+<br></div><br><p>
+Now that we've got our Texture, our TextureView, and our Sampler we've got all the resources we need to add a texture to our triangle. The next thing we need to do is update our vertex buffer to handle texture coordinates.</p>
+<br><hr><h2>Vertex Buffer with Texture Coordinates</h2><br><p>
+As we saw in the last lesson, we can add any data at each vertex and it will be interpolated across the surface of the triangle. We did color and position last time. This time we'll add texture coordinates (also known as UV coordinates) instead of color. </p>
+<br><p>
+We first change the data in our buffer to contain two triangles to form a Quad. With each vertex containing a position and a texture coordinate.</p>
+<br><div class="code-block-left "><span style="color: #6B8E23;">float </span>vertexData[] = { <span style="color: #7D7D7D;">// x, y, u, v</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">-0.5f, </span> <span style="color: #6B8E23;">0.5f, </span><span style="color: #6B8E23;">0.f, </span><span style="color: #6B8E23;">0.f,
+</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0.5f, </span><span style="color: #6B8E23;">-0.5f, </span><span style="color: #6B8E23;">1.f, </span><span style="color: #6B8E23;">1.f,
+</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">-0.5f, </span><span style="color: #6B8E23;">-0.5f, </span><span style="color: #6B8E23;">0.f, </span><span style="color: #6B8E23;">1.f,
+</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">-0.5f, </span> <span style="color: #6B8E23;">0.5f, </span><span style="color: #6B8E23;">0.f, </span><span style="color: #6B8E23;">0.f,
+</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0.5f, </span> <span style="color: #6B8E23;">0.5f, </span><span style="color: #6B8E23;">1.f, </span><span style="color: #6B8E23;">0.f,
+</span><br><span style='white-space: pre;'>    </span><span style="color: #6B8E23;">0.5f, </span><span style="color: #6B8E23;">-0.5f, </span><span style="color: #6B8E23;">1.f, </span><span style="color: #6B8E23;">1.f
+</span><br>};
+<br>stride = <span style="color: #6B8E23;">4 </span>* <span style="color: #CD950C;">sizeof</span><span style="color: #A08563;">(</span>float<span style="color: #A08563;">)</span>;
+<br><br></div><br><p>
+This time there are only 4 floats per vertex so we update our stride as well.</p>
+<br><p>
+You'll also notice the top of the quad is texture coordinate 0 in the Y axis and 1 at the bottom. This is because STB_IMAGE loads images with top to bottom - 0,0 pixel is the top left of the image [2] .</p>
+<br><hr><h2>Update out Input Layout</h2><br><p>
+Since we are using the texture coordinates and not the color at each vertex, which is 2 floats not 4 floats per vertex, we need to update the InputLayout. We remove the "COL" element and replace it with "TEX" as this is the name we gave it in our VS_Input struct. We also change the size of the element to be 2 floats instead of 4.</p>
+<br><div class="code-block-left ">D3D11_INPUT_ELEMENT_DESC inputElementDesc[] =
+<br>{
+<br><span style='white-space: pre;'>    </span>{ <span style="color: #DAB98F;">"POS"</span>, <span style="color: #6B8E23;">0, </span>DXGI_FORMAT_R32G32_FLOAT, <span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">0, </span>D3D11_INPUT_PER_VERTEX_DATA, <span style="color: #6B8E23;">0 </span>},
+<br><span style='white-space: pre;'>    </span>{ <span style="color: #DAB98F;">"TEX"</span>, <span style="color: #6B8E23;">0, </span>DXGI_FORMAT_R32G32_FLOAT, <span style="color: #6B8E23;">0, </span>D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, <span style="color: #6B8E23;">0 </span>}
+<br>};
+<br></div><br><hr><h2>Updating our vertex and pixel shader</h2><br><p>
+The next thing we'll do is update our shader to actually make use of the texture we're going to be passing in.</p>
+<br><p>
+Instead of passing in a color, we're now passing in a tex-coordinate in our VS_Input struct. We pass that through to the pixel shader in the VS_Output Struct. </p>
+<br><p>
+We declare the texture and sampler we're going to be using:</p>
+<br><div class="code-block-left ">Texture2D    mytexture : <span style="color: #CD950C;">register</span><span style="color: #A08563;">(</span>t0<span style="color: #A08563;">)</span>;
+<br>SamplerState mysampler : <span style="color: #CD950C;">register</span><span style="color: #A08563;">(</span>s0<span style="color: #A08563;">)</span>;
+<br></div><br><p>
+In our pixel shader, we sample our texture. </p>
+<br><div class="code-block-left "><span style="color: #CD950C;">return </span><span style="color: #CD950C;">mytexture.Sample</span><span style="color: #A08563;">(</span>mysampler, input.uv<span style="color: #A08563;">)</span>;
+<br></div><br><p>
+The whole shader looks like this: </p>
+<br><div class="code-block-left "><span style="color: #CD950C;">struct </span>VS_Input {
+<br><span style='white-space: pre;'>    </span>float2 pos : POS;
+<br><span style='white-space: pre;'>    </span>float2 uv : TEX;
+<br>};
+<br><br><span style="color: #CD950C;">struct </span>VS_Output {
+<br><span style='white-space: pre;'>    </span>float4 pos : SV_POSITION;
+<br><span style='white-space: pre;'>    </span>float2 uv : TEXCOORD;
+<br>};
+<br><br>Texture2D    mytexture : <span style="color: #CD950C;">register</span><span style="color: #A08563;">(</span>t0<span style="color: #A08563;">)</span>;
+<br>SamplerState mysampler : <span style="color: #CD950C;">register</span><span style="color: #A08563;">(</span>s0<span style="color: #A08563;">)</span>;
+<br><br>VS_Output <span style="color: #CD950C;">vs_main</span><span style="color: #A08563;">(</span>VS_Input input<span style="color: #A08563;">)</span>
+<br>{
+<br><span style='white-space: pre;'>    </span>VS_Output output;
+<br><span style='white-space: pre;'>    </span>output.pos = <span style="color: #CD950C;">float4</span><span style="color: #A08563;">(</span>input.pos, <span style="color: #6B8E23;">0.0f, </span><span style="color: #6B8E23;">1.0f</span><span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>output.uv = input.uv;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span>output;
+<br>}
+<br><br>float4 <span style="color: #CD950C;">ps_main</span><span style="color: #A08563;">(</span>VS_Output input<span style="color: #A08563;">)</span> : SV_Target
+<br>{
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">return </span><span style="color: #CD950C;">mytexture.Sample</span><span style="color: #A08563;">(</span>mysampler, input.uv<span style="color: #A08563;">)</span>;   
+<br>}
+<br></div><br><p>
+The <i>: register(t0);</i> next to the texture and sampler declaration refers to the slot id these are in, which we make use of when we set the sampler and texture on the CPU side.</p>
+<br><hr><h2>Using our texture in the game loop</h2><br><p>
+We've got everything we need to now draw our texture to the screen. We now need to tell the shader which texture and sampler to use when it draws our triangles. </p>
+<br><p>
+Once we set our shaders in the game loop, we can then set the texture and sampler to their slot id (the register(t0); in our shader. The zero being the index of the slot):</p>
+<br><div class="code-block-left "><span style="color: #CD950C;">d3d11DeviceContext-&gt;PSSetShaderResources</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">1, </span>&textureView<span style="color: #A08563;">)</span>;
+<br><span style="color: #CD950C;">d3d11DeviceContext-&gt;PSSetSamplers</span><span style="color: #A08563;">(</span><span style="color: #6B8E23;">0, </span><span style="color: #6B8E23;">1, </span>&samplerState<span style="color: #A08563;">)</span>;
+<br></div><br><hr><p>
+The first parameter is the start slot index, the second parameter is how many shader resources are in the array we're passing in. The final parameter is the array of resources we want to use. </p>
+<br><p>
+If you compile and run the program you should see the testTexture.png appear.</p>
+<br><p>
+<img src='./photos/directX_lesson1_pictures/texturedQuad.png' style='width: 60%;'></p>
+<br><hr><h2>Overview</h2><br><p>
+That's it! </p>
+<br><p>
+1. We loaded our texture to the CPU using stb_image. </p>
+<br><p>
+2. We then uploaded the texture to the GPU by creating a ID3D11Texture2D. </p>
+<br><p>
+3. We created a ID3D11ShaderResourceView of our Texture.</p>
+<br><p>
+4. We created a ID3D11SamplerState to know how to sample this texture. </p>
+<br><p>
+5. We updated our vertex data to draw a Quad and have texture coordinates.</p>
+<br><p>
+6. We updated our InputLayout to know about texture coordinates in the shader.</p>
+<br><p>
+7. Updated our Shader to sample from the texture.</p>
+<br><p>
+8. When we go to draw our Triangles we assign the texture view and sampler to the correct slots in our shader.</p>
+<br><a target='_blank' href='https://github.com/Olster1/directX11_tutorial/tree/main/lesson4'> You can see the full code for this article here 👆</a><br><br><hr><div class='email-list'><p>Sign up to my Newsletter to get a weekly email about what I’m up to, what I’m learning and what I’m teaching.</p><div style='text-align: center;'><input class='email-input-style' id='email_input' type='email'/><button class='subscribe-btn' onclick='testEmail()'>Subscribe</button><div id='email-loading-progress'></div></div></div><br><hr><h2>Quiz</h2><br><p>
+<b>1. What three resources do we need to create to sample our texture in the shader?</b></p>
+<br><p>
+[ID3D11Texture2D, ID3D11ShaderResourceView, ID3D11SamplerState]</p>
+<br><p>
+<b>2. Is the way we sample a texture and the texture coupled together in DirectX? </b></p>
+<br><p>
+[No unlike OpenGL the way we sample a texture like the filter mode is separate to the texture]</p>
+<br><p>
+<b>3. What do we need to do to use our texture when we draw our vertexes each frame? </b></p>
+<br><p>
+[Assign the textureView and the SamplerState to their slot ids in the shader]</p>
+<br><p>
+<b>4. How can you draw a Quad in 3d and 2d graphics? </b></p>
+<br><p>
+[Sticking 2 triangles together]</p>
+<br><hr><h2>NOTES</h2><br><p>
+[1] Point Sampling is equivalent to <i>Nearest</i> Sampling in OpenGL</p>
+<br><p>
+[2] You can change the first pixel to be the bottom left if you'd prefer using stbi_set_flip_vertically_on_load(int flag_true_if_should_flip); function. You'd also have to change the texture coordinates of the vertex buffer.  </p>
+<br><a href='./direct3d_11_part3.html'><div style='background-color: #ccff66; border-radius: 0.5cm; padding: 0.5cm;'> PREVIOUS LESSON 👆</div></a><br><br><a href='./direct3d_11_part5.html'><div style='background-color: #ccff66; border-radius: 0.5cm; padding: 0.5cm;'> NEXT LESSON 👆</div></a><br><br></div>
+</div>
+</div>
+<br><br></div></body></html><script src='email.js'></script>

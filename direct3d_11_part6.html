@@ -1,0 +1,83 @@
+<!DOCTYPE html>	<html lang="en">		<head>		  <title>Games Craft</title>		  <meta charset="utf-8">		  <meta name="viewport" content="width=device-width, initial-scale=1">		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">		  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>		  <link rel="stylesheet" type="text/css" href="style.css">		</head><nav class="navbar navbar-default" style="background-color: white; color: #f5f6f7;">	  <div class="container">	    <div class="navbar-header">	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	        <span class="icon-bar"></span>	      </button>	      <a class="navbar-left" href="./index.html#"><img style="width: 3cm;" src="./photos/logo.png"></a>	    </div>	    <div class="collapse navbar-collapse" id="myNavbar">	      <ul class="nav navbar-nav navbar-right"  style="margin-top: 25px;">	        <li><a href="./articles.html">Articles</a></li>	      </ul>	    </div>	  </div>	</nav>	<body>	<div class="container"><div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<h1>Direct3d 11 for games: Part 6</h1><h2>Timing your Game Loop and Animating the Quad</h2><br></div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-10 col-md-12 col-lg-12">
+<div class="info-card">
+<p>
+This lesson is less about Direct3D and more about timing your game loop.</p>
+<br><p>
+Once crucial thing of a game is how long has elapsed since your last frame has been shown to the user. By knowing this, you know how much to update your game by. To find the time elapsed since last frame known as <b>delta time</b> or <b>dt</b>, we can use some Windows funcitons, specifically <i>QueryPerformanceCounter</i> and <i>QueryPerformanceFrequency</i>. </p>
+<br><hr><p>
+Before we enter the game loop we set up a few variables.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">// Timing</span><br>LONGLONG startPerfCount = <span style="color: #6B8E23;">0;
+</span><br>LONGLONG perfCounterFrequency = <span style="color: #6B8E23;">0;
+</span><br>{
+<br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Get the current performance counter at this moment to act as our reference</span><br><span style='white-space: pre;'>    </span>LARGE_INTEGER perfCount;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">QueryPerformanceCounter</span><span style="color: #A08563;">(</span>&perfCount<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>startPerfCount = perfCount.QuadPart;
+<br><br><span style='white-space: pre;'>    </span><span style="color: #7D7D7D;">//NOTE: Get the Frequency of the performance counter to be able to convert from counts to seconds</span><br><span style='white-space: pre;'>    </span>LARGE_INTEGER perfFreq;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">QueryPerformanceFrequency</span><span style="color: #A08563;">(</span>&perfFreq<span style="color: #A08563;">)</span>;
+<br><span style='white-space: pre;'>    </span>perfCounterFrequency = perfFreq.QuadPart;
+<br><br>}
+<br><br><span style="color: #7D7D7D;">//NOTE: To store the last time in</span><br>double currentTimeInSeconds = <span style="color: #6B8E23;">0.0;
+</span><br><br></div><br><hr><p>
+Next in the game loop we want to calculate delta time for the frame. To do this we take the current performance count again, and find what it is relative to the start counter, then convert it to seconds. This will now be the time since we started our game loop. Now we can then find the difference between the time now and the time from the last frame.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: Inside game loop</span><br><span style="color: #6B8E23;">float </span>dt;
+<br>{
+<br><span style='white-space: pre;'>    </span>double previousTimeInSeconds = currentTimeInSeconds;
+<br><span style='white-space: pre;'>    </span>LARGE_INTEGER perfCount;
+<br><span style='white-space: pre;'>    </span><span style="color: #CD950C;">QueryPerformanceCounter</span><span style="color: #A08563;">(</span>&perfCount<span style="color: #A08563;">)</span>;
+<br><br><span style='white-space: pre;'>    </span>currentTimeInSeconds <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>double<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>perfCount.QuadPart - startPerfCount<span style="color: #A08563;">)</span> <span style="color: #CD950C;">/ </span><span style="color: #A08563;">(</span>double<span style="color: #A08563;">)</span>perfCounterFrequency;
+<br><span style='white-space: pre;'>    </span>dt <span style="color: #CD950C;">= </span><span style="color: #A08563;">(</span>float<span style="color: #CD950C;">)</span><span style="color: #A08563;">(</span>currentTimeInSeconds - previousTimeInSeconds<span style="color: #A08563;">)</span>;
+<br>}
+<br><br></div><br><p>
+By doing everything relative to the start performance count instead of counts since time of computer boot, we help improve the possible precision of the time when it's converted into a double value. </p>
+<br><p>
+We now have the delta time for our frame which we can print out. If you have a 60fps monitor you should see a time around 0.0166 if vy-sync is on (the first argument in swapBuffer being 1). However it won't be exact. The reasons behind this can be quite complex: you can read more behind the intricacies of frame timing and getting smooth gameplay in the notes [1].</p>
+<br><hr><p>
+Here is the code we use to print out our dt value for each frame.</p>
+<br><div class="code-block-left "><span style="color: #6B8E23;">char </span>buffer[256];
+<br><span style="color: #CD950C;">sprintf</span><span style="color: #A08563;">(</span>buffer, <span style="color: #DAB98F;">"%f\n"</span>, dt<span style="color: #A08563;">)</span>;
+<br><span style="color: #CD950C;">OutputDebugStringA</span><span style="color: #A08563;">(</span>buffer<span style="color: #A08563;">)</span>;
+<br></div><br><hr><p>
+Also have to include <b>stdio.h</b> to use sprintf.</p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: At top of file</span><br><span style="color: #DAB98F;">#include </span>&lt;stdio.h&gt;
+<br></div><br><hr><h2>Using the dt value in our code</h2><br><p>
+Now that we have dt available to us we can use it to animate the position of our Quad.</p>
+<br><p>
+We can use <b>dt</b> to update the position of the quad by changing the constant buffer position. </p>
+<br><div class="code-block-left "><span style="color: #7D7D7D;">//NOTE: Store time since start of game</span><br><span style="color: #CD950C;">static </span><span style="color: #6B8E23;">float </span>totalTime = <span style="color: #6B8E23;">0;
+</span><br>totalTime += dt; 
+<br><br><span style="color: #7D7D7D;">//...get pointer to constant buffer using Map from previous lesson</span><br>constants-&gt;pos = <span style="color: #CD950C;">{cosf</span><span style="color: #A08563;">(</span>totalTime<span style="color: #A08563;">)</span>*0.25f, <span style="color: #CD950C;">sinf</span><span style="color: #A08563;">(</span>totalTime<span style="color: #A08563;">)</span>*0.3f};
+<br><br></div><br><p>
+This code will make our quad move in a circle. </p>
+<br><p>
+Also have to #include  the Math.h header to use <i>cosf</i> and <i>sinf</i>.</p>
+<br><hr><h2>Conclusion</h2><br><p>
+We did it, we're now timing our frame so we can update our game correctly.</p>
+<br><a target='_blank' href='https://github.com/Olster1/directX11_tutorial/tree/main/lesson6'> You can see the full code for this article here 👆</a><br><br><hr><h2>NOTES</h2><br><p>
+[1] More articles on the intricacy's of frame timing </p>
+<br><p>
+<a href='https://gafferongames.com/post/fix_your_timestep/'>Fix Your Timestep</a></p>
+<br><p>
+<a href='https://medium.com/@alen.ladavac/the-elusive-frame-timing-168f899aec92'>The Elusive Frame Timing</a></p>
+<br><p>
+<a href='https://www.gdcvault.com/play/1025031/Advanced-Graphics-Techniques-Tutorial-The'>The Elusive Frame Timing: A Case Study for Smoothness Over Speed</a>video): </p>
+<br><p>
+<a href='https://www.gdcvault.com/play/1025407/Advanced-Graphics-Techniques-Tutorial-The'>The Elusive Frame Timing: A Case Study for Smoothness Over Speed</a>PDF): </p>
+<br><p>
+<a href='https://www.youtube.com/watch?v=_zpS1p0_L_o'>Myths and Misconceptions of Frame Pacing</a></p>
+<br><p>
+<a href='https://blogs.unity3d.com/2020/10/01/fixing-time-deltatime-in-unity-2020-2-for-smoother-gameplay-what-did-it-take/'>Fixing Time.deltaTime in Unity 2020.2 for smoother gameplay</a></p>
+<br><p>
+<a href='https://developer.android.com/games/sdk/frame-pacing'>Android - Achieve proper frame pacing</a></p>
+<br><p>
+<a href='https://developer.nvidia.com/reflex'>Low Latency Mode in NVIDIA Reflex SDK</a></p>
+<br><div class='email-list'><p>Sign up to my Newsletter to get a weekly email about what I’m up to, what I’m learning and what I’m teaching.</p><div style='text-align: center;'><input class='email-input-style' id='email_input' type='email'/><button class='subscribe-btn' onclick='testEmail()'>Subscribe</button><div id='email-loading-progress'></div></div></div><br><hr><a href='./direct3d_11_part6.html'><div style='background-color: #ccff66; border-radius: 0.5cm; padding: 0.5cm;'> PREVIOUS LESSON 👆</div></a><br><br><a href='./direct3d_11_part7.html'><div style='background-color: #ccff66; border-radius: 0.5cm; padding: 0.5cm;'> NEXT LESSON 👆</div></a><br><br></div>
+</div>
+</div>
+<br><br></div></body></html><script src='email.js'></script>
