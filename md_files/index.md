@@ -1,6 +1,9 @@
 #CARD
 #TITLE Articles
 #BR 
+
+I'm interested in history & philosophy, escpecially of history & philosophy of science. I'm also interested in Software Development and Game Design. 
+
 ####Direct 3d
 <a href="./direct3d_11_part1.html">Simple Direct3d: Part 1 - Create a Window</a>
 <a href="./direct3d_11_part2.html">Simple Direct3d: Part 2 - Creating a D3D Device and Device Context</a>
