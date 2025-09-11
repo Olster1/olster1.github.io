@@ -1,6 +1,5 @@
 #CARD
 ##Collision Recovery
-###29th September 2024
 
 For the player collision detection with the world, we use a raycast against all the blocks in a certain radius of the player. We then find the shortest distance to a block and move that far. This works quite well but every now and then the player would get stuck in a block and wouldn't be able to get out. I'm not sure exactly what caused this but assume it is just a certain angle and block arrangement that causes the player to move inside a block slightly. This is a common collision detection thing to do: try as hard as possible to not get stuck in something, but if you do have someway to recover from it. I originally thought of the GJK/EPA algorithm. But instead could just do a really simple thing, search for the closest empty block space, just like we did for the pickup blocks. 
 

@@ -109,7 +109,7 @@ static void writeHeader(FileState *state) {
 	char *text = "<!DOCTYPE html>\
 	<html lang=\"en\">\
 		<head>\
-		  <title>Data App Dev</title>\
+		  <title>Games Craft</title>\
 		  <meta charset=\"utf-8\">\
 		  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\
 		  <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\">\
@@ -133,12 +133,6 @@ static void writeNavBar(FileState *state) {
 	        <span class=\"icon-bar\"></span>\
 	      </button>\
 	      <a class=\"navbar-left\" href=\"./index.html#\"><img style=\"width: 3cm;\" src=\"./photos/logo3.png\"></a>\
-	    </div>\
-	    <div class=\"collapse navbar-collapse\" id=\"myNavbar\">\
-	      <ul class=\"nav navbar-nav navbar-right\"  style=\"margin-top: 25px;\">\
-	        <li><a href=\"./games_dojo.html\">Games</a></li>\
-			<li><a href=\"./minecraft_blog.html\">Minecraft Articles</a></li>\
-	      </ul>\
 	    </div>\
 	  </div>\
 	</nav>\
