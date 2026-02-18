@@ -1,6 +1,60 @@
+
+##PROJECTS
+#HTML
+
+  <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;">Ken Ken Game</div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 75%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;">Metroidvania 2D puzzle game</div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 10%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;">Voxel 3d Raytrace game</div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 40%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+  
+  <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;">3D puzzle game</div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 0%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;"><a href='https://makinggamesinc.itch.io/spixl-pixel-art-editor'>2d Pixel Art Editor</a></div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 90%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+
+<div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;">Text Editor</div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 10%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+
+</div>
+#ENDHTML
+
+#BR
+
 #CARD
 #TITLE Articles
 #BR 
+
+
+
 
 ####Direct 3d
 <a href="./direct3d_11_part1.html">Simple Direct3d: Part 1 - Create a Window</a>
@@ -19,6 +73,7 @@
 ####Graphics 
 <a href="./perspective-matrix-4-ways.html">OpenGL and Direct3D Perspective Matrices</a>
 <a href='./monospaced_font.html'>MonoSpaced Fonts</a>
+<a href='./clgtf_part1.html'>Loading GLTF models</a>
 #HR
 ####Games 
 <a href='./minecraft_drop_blocks.html'>Minecraft Drop Blocks</a>
