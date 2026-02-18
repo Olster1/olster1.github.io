@@ -4,6 +4,13 @@
   #HTML
 
   <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 6px; font-weight: bold;">Financial Freedom</div>
+    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+      <div style="width: 10%; background: #2196f3; height: 100%;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 20px;">
     <div style="margin-bottom: 6px; font-weight: bold;">Ken Ken Game</div>
     <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
       <div style="width: 75%; background: #2196f3; height: 100%;"></div>
